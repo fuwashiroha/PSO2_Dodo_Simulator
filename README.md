@@ -1,4 +1,4 @@
-# PSO2_Dodo_Offline
+# PSO2_Dodo_Simulator
 A special ability affixing simulator for classic PSO2
 
 PSO2特殊能力模拟器使用说明
