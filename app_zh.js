@@ -25,6 +25,27 @@ function saveLocal(){localStorage.setItem("pso2-dodo-offline-v9",JSON.stringify(
 function loadLocal(){try{const o=JSON.parse(localStorage.getItem("pso2-dodo-offline-v9")||localStorage.getItem("pso2-dodo-offline-v8")||localStorage.getItem("pso2-dodo-offline-v7")||localStorage.getItem("pso2-dodo-offline-v6")||localStorage.getItem("pso2-dodo-offline-v5")||localStorage.getItem("pso2-dodo-offline-v4")||localStorage.getItem("pso2-dodo-offline-v3")||localStorage.getItem("pso2-dodo-offline-v2")||localStorage.getItem("pso2-dodo-offline"));if(o){state=o;state.selected=state.selected||[];state.sameName=!!state.sameName;state.addItem=!!state.addItem;normalizeState();render();toast("已读取保存数据")}}catch(e){}}
 function resetAll(){state={slots:Object.fromEntries(SLOTS.map(x=>[x,[]])),factor:Object.fromEntries(SLOTS.map(x=>[x,[]])),support:0,campaign:0,sameName:false,addItem:false,selected:[]};render()}
 
+function fillAllWithJunk(target){
+  target=Math.max(1,Math.min(8,Number(target)||1));
+  for(const slot of SLOTS){
+    while(state.slots[slot].length<target)state.slots[slot].push('JUNK00');
+  }
+  render();
+  toast(`已将所有本体和素材填充至至少${target}孔`)
+}
+function clearAllJunk(){
+  let removed=0;
+  for(const slot of SLOTS){
+    const before=state.slots[slot].length;
+    state.slots[slot]=state.slots[slot].filter(c=>ability(c)?.special!=='junk');
+    removed+=before-state.slots[slot].length;
+    state.factor[slot]=state.factor[slot].filter(c=>ability(c)?.special!=='junk'&&state.slots[slot].includes(c));
+  }
+  state.selected=state.selected.filter(c=>ability(c)?.special!=='junk');
+  render();
+  toast(removed?`已删除${removed}个垃圾能力`:'当前没有垃圾能力')
+}
+
 function familyKey(a){
   if(!a)return '';
   const basic=["パワー","シュート","テクニック","アーム","スタミナ","スピリタ","ボディ","リアクト","マインド","バーン","フリーズ","ショック","ミラージュ","パニック","ポイズン"];
@@ -34,6 +55,8 @@ function familyKey(a){
   if(['factor','ether_factor'].includes(a.special))return 'factor';
   if(['reverie','mana_reverie'].includes(a.special))return 'reverie';
   if(['soul_catalyst','factor_catalyst','reverie_catalyst','glare_catalyst'].includes(a.special))return 'catalyst';
+  if(a.special==='lesser')return 'lesser:'+a.lesserFamily;
+  if(a.special==='ev')return 'lesser:'+a.lesserFamily;
   if(a.special==='returner')return 'returner';
   if(a.special==='crack')return 'crack';
   if(a.special==='mark')return 'mark';
@@ -155,6 +178,9 @@ function countName(counts,n){return countByName(counts,n)}
 function hasSpecial(all,sp){return all.some(c=>ability(c)?.special===sp)}
 function recipeRate(a,counts){
   const n=a.name;
+  // EV系: 対応するレッサー攻撃Ⅴ + レッサースタミナⅤ/スピリタⅤ の2種類で50%特殊合成。
+  if(a.special==='ev' && Array.isArray(a.recipe) && a.recipe.length===2 &&
+     countName(counts,a.recipe[0])>=1 && countName(counts,a.recipe[1])>=1)return 50;
   if(n==='ガーディアン・ソール' && countName(counts,'アストラル・ソール')>=1 && countName(counts,'エーテル・ファクター')>=1 && countName(counts,'マナ・レヴリー')>=1 && countName(counts,'アブソリュート・グレア')>=1)return 10;
   if(n==='アストラル・ソール' && countName(counts,'ソール・カタリスト')>=4 && countName(counts,'ダークネス・ソール')>=1)return 60;
   if(n==='マナ・レヴリー' && countName(counts,'レヴリー・カタリスト')>=4 && countName(counts,'オメガ・メモリア')>=1)return 60;
@@ -226,6 +252,27 @@ function rawRate(a,counts,all){
       r=Math.max(r,pr);
     }
   }
+
+  // レッサー系:
+  // 継承 I: 2個80% / 3個100%
+  //      II: 2個70% / 3個100%
+  //     III: 2個50% / 3個100%
+  //      IV: 2個40% / 3個100%
+  //       V: 2個30% / 3個100%
+  // 合成は1ランク下を3個: II 70% / III 50% / IV 30% / V 20%。
+  if(a.special==='lesser'){
+    const count=counts[a.code]||0;
+    if(count>0) r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
+    if(a.rank>1){
+      const prev=DATA.find(x=>x.special==='lesser'&&x.lesserFamily===a.lesserFamily&&x.rank===a.rank-1);
+      const pc=prev?(counts[prev.code]||0):0;
+      if(pc>0) r=Math.max(r,a.combine?.[Math.min(pc,3)-1]||0);
+    }
+    return r;
+  }
+
+  // EV系は通常継承不可。候補は上記の特殊合成（または特殊能力因子）でのみ生成。
+  if(a.special==='ev') return r;
 
   // リターナー / クラック: exact transfer/generation rules.
   if(a.special==='returner' || a.special==='crack'){
@@ -373,5 +420,5 @@ function renderSummary(){
 }
 function render(){$("#support").value=state.support;$("#campaign").value=state.campaign;$("#sameName").checked=!!state.sameName;$("#addItem").checked=!!state.addItem;renderList();renderSlots();renderCandidates();saveHash()}
 function toast(t){const x=$("#toast");x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1600)}
-function initApp(){loadHash();[...new Set(DATA.map(a=>displayCategory(a)))].sort((a,b)=>a.localeCompare(b,'zh-CN')).forEach(g=>$("#group").insertAdjacentHTML('beforeend',`<option>${esc(g)}</option>`));$("#search").oninput=renderList;$("#group").onchange=renderList;$("#support").onchange=e=>{state.support=+e.target.value;render()};$("#campaign").onchange=e=>{state.campaign=+e.target.value;render()};$("#sameName").onchange=e=>{state.sameName=!!e.target.checked;render()};$("#addItem").onchange=e=>{state.addItem=!!e.target.checked;if(!state.addItem)state.selected=state.selected.filter(c=>!ability(c)?.addItemAvailable);render()};$("#save").onclick=saveLocal;$("#load").onclick=loadLocal;$("#reset").onclick=()=>{if(confirm('确定要全部清空吗？'))resetAll()};$("#copy").onclick=()=>navigator.clipboard?.writeText(location.href).then(()=>toast('URL已复制')).catch(()=>toast('受浏览器限制，无法复制'));render()}
+function initApp(){loadHash();[...new Set(DATA.map(a=>displayCategory(a)))].sort((a,b)=>a.localeCompare(b,'zh-CN')).forEach(g=>$("#group").insertAdjacentHTML('beforeend',`<option>${esc(g)}</option>`));$("#search").oninput=renderList;$("#group").onchange=renderList;$("#support").onchange=e=>{state.support=+e.target.value;render()};$("#campaign").onchange=e=>{state.campaign=+e.target.value;render()};$("#sameName").onchange=e=>{state.sameName=!!e.target.checked;render()};$("#addItem").onchange=e=>{state.addItem=!!e.target.checked;if(!state.addItem)state.selected=state.selected.filter(c=>!ability(c)?.addItemAvailable);render()};$("#junkFillBtn").onclick=()=>fillAllWithJunk($("#junkFillSlots").value);$("#junkClearBtn").onclick=clearAllJunk;$("#save").onclick=saveLocal;$("#load").onclick=loadLocal;$("#reset").onclick=()=>{if(confirm('确定要全部清空吗？'))resetAll()};$("#copy").onclick=()=>navigator.clipboard?.writeText(location.href).then(()=>toast('URL已复制')).catch(()=>toast('受浏览器限制，无法复制'));render()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initApp);else initApp();

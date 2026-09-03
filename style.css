@@ -45,3 +45,8 @@ font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans CJK 
 .statSummary{margin-top:8px;padding-top:7px;border-top:1px solid #c1ccd3}.statTitle{font-weight:bold;margin-bottom:4px}.statGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 8px}.statGrid>div{display:flex;justify-content:space-between;gap:6px;padding:1px 0;border-bottom:1px dotted #c8d1d7}.statGrid span{color:#42515b}.statGrid strong{font-size:12px!important;color:#173f59!important;font-variant-numeric:tabular-nums}@media(max-width:950px){.statGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .itemTag{display:inline-block;margin-left:6px;padding:1px 4px;border-radius:2px;background:#d88900;color:#fff;font-size:11px;font-style:normal;font-weight:700;vertical-align:1px}
+
+.junkTools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:3px}
+.junkTools label{display:flex;align-items:center;gap:5px}
+.junkTools select,.junkTools button{height:30px}
+.junkTools button{padding:2px 10px}

@@ -44,6 +44,17 @@
       <label class="sameNameControl" id="addItemLabel" title="特殊能力追加アイテムを1個使用し、追加アイテム能力を候補に表示します">
         <input type="checkbox" id="addItem"><span id="addItemText">追加アイテムを使用</span>
       </label>
+      <div class="junkTools">
+        <label><span id="junkFillText">全本体・素材をゴミで</span>
+          <select id="junkFillSlots">
+            <option value="1">1S</option><option value="2">2S</option><option value="3">3S</option><option value="4">4S</option>
+            <option value="5">5S</option><option value="6">6S</option><option value="7">7S</option><option value="8">8S</option>
+          </select>
+          <span id="junkFillSuffix">まで埋める</span>
+        </label>
+        <button type="button" id="junkFillBtn">実行</button>
+        <button type="button" id="junkClearBtn">全ゴミ削除</button>
+      </div>
     </div>
   </section>
   <section class="panel right">
