@@ -33,6 +33,7 @@ function familyKey(a){
   if(a.special==='mark')return 'mark';
   if(a.group==='フィーバー')return 'fever';
   if(a.group==='センテンス')return 'sentence';
+  if(a.special==='phrase'||a.group==='フレイズ')return 'phrase';
   if(a.group==='アルター'||a.group==='フリクト'||a.name==='スティグマ')return 'alter_flict_stigma';
   if(a.name==='ウィンクルム'||a.name==='アクス・MAX'||a.name==='モデュレイター')return 'wink_mod_ax';
   if(['divine_will','divine_order'].includes(a.special))return 'divine';
@@ -159,7 +160,7 @@ function recipeRate(a,counts){
 function rawRate(a,counts,all){
   if(SLOTS.some(s=>state.factor[s].includes(a.code)))return 100;
   const count=counts[a.code]||0;
-  const soulR=hasSpecial(all,'soul_receptor'), factorR=hasSpecial(all,'factor_receptor'), revR=hasSpecial(all,'reverie_receptor'), glareR=hasSpecial(all,'glare_receptor'), catR=hasSpecial(all,'catalyst_receptor'), markR=hasSpecial(all,'mark_receptor'), attackR=hasSpecial(all,'attack_receptor'), guardR=hasSpecial(all,'guard_receptor'), photonR=hasSpecial(all,'photon_receptor'), extR=hasSpecial(all,'ext_receptor'), photonCollect=hasSpecial(all,'photon_collect'), divineR=hasSpecial(all,'divine_receptor'), exceedR=hasSpecial(all,'exceed_receptor');
+  const soulR=hasSpecial(all,'soul_receptor'), factorR=hasSpecial(all,'factor_receptor'), revR=hasSpecial(all,'reverie_receptor'), glareR=hasSpecial(all,'glare_receptor'), catR=hasSpecial(all,'catalyst_receptor'), markR=hasSpecial(all,'mark_receptor'), attackR=hasSpecial(all,'attack_receptor'), guardR=hasSpecial(all,'guard_receptor'), photonR=hasSpecial(all,'photon_receptor'), extR=hasSpecial(all,'ext_receptor'), photonCollect=hasSpecial(all,'photon_collect'), divineR=hasSpecial(all,'divine_receptor'), exceedR=hasSpecial(all,'exceed_receptor'), phraseR=hasSpecial(all,'phrase_receptor');
   let r=recipeRate(a,counts);
   // Receptors never create a target from nothing. The target ability itself must exist.
   if(a.group==='レセプター')return r;
@@ -194,6 +195,11 @@ function rawRate(a,counts,all){
   }
   if(a.special==='exceed_energy'){
     return (count>0 && exceedR) ? 100 : r;
+  }
+
+  // フレイズ系は通常継承不可。フレイズレセプターがあり、対象フレイズ自体が本体/素材に存在する時のみ100%。
+  if(a.special==='phrase'){
+    return (count>0 && phraseR) ? 100 : r;
   }
 
   // フォトンコレクト: 6種状態異常のランクアップだけを強化。
@@ -294,9 +300,12 @@ function sameNameMultiplier(){
   if(mats>=2)return 1.15;
   return 1;
 }
+function guidanceBonus(){
+  return state.slots['本体'].some(c=>ability(c)?.special==='guidance') ? 5 : 0
+}
 function finalRate(base,n){
-  // 同名ボーナス is multiplicative; success-rate item / boost week are additive afterwards.
-  return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+state.support+state.campaign))
+  // 同名ボーナスは乗算。成功率アイテム・報酬期間・錬成の導きはその後に加算。
+  return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+state.support+state.campaign+guidanceBonus()))
 }
 function renderCandidates(){const res=candidates(),list=res.list;state.selected=state.selected.filter(c=>list.some(x=>x.code===c));const n=state.selected.length;if(res.err){$("#candidateBody").innerHTML=`<div class="noCand warnbox">${esc(res.err)}</div>`;renderSummary();return}$("#candidateBody").innerHTML=list.map(a=>{const checked=state.selected.includes(a.code),fin=finalRate(a.base,n||1);return `<label class="cand ${checked?'sel':''}"><input type="checkbox" data-code="${a.code}" ${checked?'checked':''}><span class="candName">${esc(a.name)}${a.fromAddItem?'<em class="itemTag">追加アイテム</em>':''}</span><span class="base">${a.base}%</span><strong>${fin}%</strong></label>`}).join('')||'<div class="noCand">追加候補がありません</div>';$$('#candidateBody input').forEach(i=>i.onchange=()=>{if(i.checked){const max=Math.min(8,state.slots['本体'].length+1);if(state.selected.length>=max){i.checked=false;toast(`選択可能数は最大${max}個です（1回の追加で拡張は+1Sまで）`);return}const fk=familyKey(ability(i.dataset.code));if(fk)state.selected=state.selected.filter(c=>familyKey(ability(c))!==fk);state.selected.push(i.dataset.code)}else state.selected=state.selected.filter(c=>c!==i.dataset.code);renderCandidates();renderSummary()});renderSummary()}
 
