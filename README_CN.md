@@ -1,3 +1,4 @@
+[日本語](README.md) | [简体中文](README_CN.md)
 # PSO2 旧国 特殊能力追加模拟器
 
 这是一个用于《PHANTASY STAR ONLINE 2》旧国版本的特殊能力追加模拟器。
