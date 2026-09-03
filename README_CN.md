@@ -161,14 +161,18 @@ EV 系按照对应 Lesser V 的组合进行特殊合成。
 
 不需要安装 Node.js、Python 或其他运行环境。
 
-## 文件结构
+## 数据来源
 
-```text
-PSO2_Dodo_Simulator/
-├─ index.html
-├─ boot.js
-├─ app_ja.js
-├─ app_zh.js
-├─ data.js
-├─ style.css
-└─ 使用方法.txt
+特殊能力数据和规则主要参考：
+
+PSO2 攻略 Wiki
+ARKS 系资料站
+旧版 PSO2 特殊能力追加模拟器
+游戏内实际机制与玩家资料
+免责声明
+
+## 本项目为非官方工具。
+
+《PHANTASY STAR ONLINE 2》及相关名称、图像、游戏数据的权利归 SEGA 所有。
+
+本项目与 SEGA 无任何官方关系，仅用于学习、研究及游戏机制模拟。
