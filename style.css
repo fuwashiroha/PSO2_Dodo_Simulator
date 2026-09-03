@@ -1,0 +1,52 @@
+
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#d9e1e8;color:#222;font-family:"Yu Gothic UI","Meiryo",sans-serif;font-size:14px}
+header{background:linear-gradient(#466a87,#29475e);color:#fff;border-bottom:1px solid #183246;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:18px;margin:0;font-weight:600}header .sub{font-size:11px;opacity:.8}
+button,select,input{font:inherit}.toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+button{border:1px solid #789; background:linear-gradient(#fff,#d8e0e7);padding:4px 9px;border-radius:2px;cursor:pointer}
+button:hover{background:#fff}.layout{display:grid;grid-template-columns:270px 1fr 360px;gap:8px;padding:8px;height:calc(100vh - 48px)}
+.panel{background:#f6f8fa;border:1px solid #9caeba;box-shadow:0 1px 2px #9995;min-height:0;display:flex;flex-direction:column}
+.panelTitle{background:linear-gradient(#e9eef2,#cfd9e0);padding:5px 7px;border-bottom:1px solid #9caeba;font-weight:700}
+.filters{padding:6px;display:grid;grid-template-columns:1fr 92px;gap:5px}.filters input,.filters select{width:100%;border:1px solid #9aaab5;padding:4px;background:white}
+#abilityList{overflow:auto;padding:4px}.ability{background:#fff;border:1px solid #b7c3cb;margin:3px 0;padding:4px 6px;cursor:grab;display:flex;justify-content:space-between;gap:6px}
+.ability:hover{background:#fffde2;border-color:#c4ad57}.ability small{color:#677;font-size:10px;text-align:right}
+.center{min-width:600px}.materials{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px;overflow:auto}
+.mat{border:1px solid #8fa1ae;background:#e7edf1;min-height:180px}.mat.over{outline:3px solid #78a3c5}
+.matHead{background:#536d7e;color:#fff;padding:5px 7px;font-weight:700;display:flex;justify-content:space-between}.matBody{padding:4px;min-height:145px}
+.empty{color:#7f8b93;text-align:center;padding:48px 2px;font-size:12px}.chip{position:relative;background:white;border:1px solid #b5c1ca;margin:3px 0;padding:5px 54px 5px 6px;min-height:28px}
+.chip.factor{background:#fff6cf;border-color:#c8ac4c}.chip b{font-size:10px;color:#a45f00;margin-left:4px}
+.chipBtns{position:absolute;right:2px;top:2px;display:flex}.chipBtns button{padding:2px 4px;font-size:9px}
+.controls{padding:7px;border-top:1px solid #aaa;background:#eef2f5;display:flex;gap:12px;flex-wrap:wrap}.controls label{display:flex;gap:5px;align-items:center}
+#candidateBody{overflow:auto;padding:5px}.cand{display:grid;grid-template-columns:20px 1fr 48px 50px;gap:4px;align-items:center;border-bottom:1px solid #d4dce1;padding:5px 3px;background:#fff}
+.cand:hover{background:#fffde2}.cand.sel{background:#e5f3ff}.cand .base{color:#666;text-align:right}.cand strong{text-align:right;color:#b10000}
+.noCand{padding:30px;text-align:center;color:#777}#summary{padding:8px;border-top:1px solid #a9b7c1;background:#edf2f5;line-height:1.7}
+#summary strong{font-size:18px;color:#b10000}.warn{background:#d17b00;color:white;padding:1px 4px;border-radius:2px}.small{font-size:10px;color:#667}
+footer{display:none}#toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#222d;color:#fff;padding:7px 14px;border-radius:3px;opacity:0;pointer-events:none;transition:.2s}
+#toast.show{opacity:1}
+@media(max-width:1100px){.layout{grid-template-columns:230px 1fr}.right{grid-column:1/-1;height:380px}.layout{height:auto}.center{min-width:0}}
+
+.warnbox{margin:8px;border:1px solid #c88;background:#fff0f0;color:#8b2020;padding:12px!important}
+
+.sameNameControl{padding:3px 7px;border:1px solid #aab7c0;background:#fff;white-space:nowrap}
+.sameNameControl input{margin:0 3px 0 0}
+
+.chip[draggable="true"]{cursor:grab}
+.chip[draggable="true"]:active{cursor:grabbing}
+.chip.dragging{opacity:.45}
+.mat.over .matBody{background:#eef8ff}
+
+.chip.ctrl-copy{outline:2px dashed #5b8aa5}
+
+.langLabel{display:inline-flex;align-items:center;gap:5px;color:#fff;font-size:12px}
+#language{height:28px}
+html[lang="zh-CN"] body,html[lang="zh-CN"] button,html[lang="zh-CN"] input,html[lang="zh-CN"] select,html[lang="zh-CN"] textarea,html[lang="zh-CN"] option{
+font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans CJK SC","Source Han Sans SC",Arial,sans-serif}
+
+.statSummary{margin-top:8px;padding-top:7px;border-top:1px solid #c1ccd3}.statTitle{font-weight:bold;margin-bottom:4px}.statGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 8px}.statGrid>div{display:flex;justify-content:space-between;gap:6px;padding:1px 0;border-bottom:1px dotted #c8d1d7}.statGrid span{color:#42515b}.statGrid strong{font-size:12px!important;color:#173f59!important;font-variant-numeric:tabular-nums}@media(max-width:950px){.statGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.itemTag{display:inline-block;margin-left:6px;padding:1px 4px;border-radius:2px;background:#d88900;color:#fff;font-size:11px;font-style:normal;font-weight:700;vertical-align:1px}
+
+.junkTools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:3px}
+.junkTools label{display:flex;align-items:center;gap:5px}
+.junkTools select,.junkTools button{height:30px}
+.junkTools button{padding:2px 10px}
