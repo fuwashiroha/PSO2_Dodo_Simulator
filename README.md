@@ -1,6 +1,6 @@
 # PSO2_Dodo_Simulator
 A special ability affixing simulator for classic PSO2
-<img width="1965" height="1318" alt="image" src="https://github.com/user-attachments/assets/84546f2c-47b7-43d3-b194-aed15258f2b9" />
+<img width="1811" height="1314" alt="image" src="https://github.com/user-attachments/assets/1d811448-1218-40c2-99b0-8c325d8b7368" />
 
 PSO2特殊能力模拟器使用说明
 操作方法
