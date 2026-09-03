@@ -1,6 +1,6 @@
 [日本語](README.md) | [简体中文](README_CN.md)
 # PSO2 旧国 特殊能力追加模拟器
-
+<img width="1891" height="1215" alt="image" src="https://github.com/user-attachments/assets/62a1ffac-1340-4386-bc3c-c2fec9fc83bb" />
 这是一个用于《PHANTASY STAR ONLINE 2》旧国版本的特殊能力追加模拟器。
 
 项目基于旧版 PSO2 特殊能力追加模拟器进行离线化、中文化和功能扩展，主要用于模拟本体与素材的特殊能力组合、继承率、合成率、扩槽补正以及追加道具等机制。
