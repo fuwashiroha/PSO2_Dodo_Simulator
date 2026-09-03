@@ -2,8 +2,6 @@
 A special ability affixing simulator for classic PSO2
 <img width="1811" height="1314" alt="image" src="https://github.com/user-attachments/assets/1d811448-1218-40c2-99b0-8c325d8b7368" />
 
-# 日本語版
-
 ```markdown
 # PSO2 特殊能力追加シミュレーター
 
