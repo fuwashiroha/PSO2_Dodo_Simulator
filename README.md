@@ -1,6 +1,6 @@
 [日本語](README.md) | [简体中文](README_CN.md)
 # PSO2 特殊能力追加シミュレーター
-<img width="1811" height="1314" alt="image" src="https://github.com/user-attachments/assets/1d811448-1218-40c2-99b0-8c325d8b7368" />
+<img width="1890" height="1212" alt="image" src="https://github.com/user-attachments/assets/eb6ced17-0cea-4e9a-b1bf-a65e97f079ce" />
 『PHANTASY STAR ONLINE 2』旧PSO2向けの特殊能力追加シミュレーターです。
 
 旧PSO2の特殊能力追加シミュレーターをベースに、オフライン化・中国語対応・機能追加・ルール修正を行ったものです。
