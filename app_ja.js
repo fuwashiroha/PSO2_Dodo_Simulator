@@ -42,6 +42,7 @@ function clearAllJunk(){
 
 function familyKey(a){
   if(!a)return '';
+  if(a.special==='sop')return 'sop:'+a.sopSlot;
   const basic=["パワー","シュート","テクニック","アーム","スタミナ","スピリタ","ボディ","リアクト","マインド","バーン","フリーズ","ショック","ミラージュ","パニック","ポイズン"];
   if(basic.includes(a.group))return 'basic:'+a.group;
   if(['soul','soul_standard','ether_soul','astral_soul','guardian_soul','ji_soul','ix_soul'].includes(a.special) || a.group==='ソール')return 'soul';
@@ -185,6 +186,7 @@ function recipeRate(a,counts){
 }
 function rawRate(a,counts,all){
   if(SLOTS.some(s=>state.factor[s].includes(a.code)))return 100;
+  if(a.special==='sop' && (counts[a.code]||0)>0)return 100;
   const count=counts[a.code]||0;
   const soulR=hasSpecial(all,'soul_receptor'), factorR=hasSpecial(all,'factor_receptor'), revR=hasSpecial(all,'reverie_receptor'), glareR=hasSpecial(all,'glare_receptor'), catR=hasSpecial(all,'catalyst_receptor'), markR=hasSpecial(all,'mark_receptor'), attackR=hasSpecial(all,'attack_receptor'), guardR=hasSpecial(all,'guard_receptor'), photonR=hasSpecial(all,'photon_receptor'), extR=hasSpecial(all,'ext_receptor'), photonCollect=hasSpecial(all,'photon_collect'), divineR=hasSpecial(all,'divine_receptor'), exceedR=hasSpecial(all,'exceed_receptor'), phraseR=hasSpecial(all,'phrase_receptor');
   let r=recipeRate(a,counts);
@@ -350,18 +352,20 @@ function sameNameMultiplier(){
 function guidanceBonus(){
   return state.slots['本体'].some(c=>ability(c)?.special==='guidance') ? 5 : 0
 }
-function finalRate(base,n){
+function finalRate(base,n,a=null){
+  // S級特殊能力は継承100%。エクストラスロット使用（拡張）時も100%。
+  if(a?.special==='sop' && base>0)return 100;
   // 同名ボーナスは乗算。成功率アイテム・報酬期間・錬成の導きはその後に加算。
   return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+state.support+state.campaign+guidanceBonus()))
 }
-function renderCandidates(){const res=candidates(),list=res.list;state.selected=state.selected.filter(c=>list.some(x=>x.code===c));const n=state.selected.length;if(res.err){$("#candidateBody").innerHTML=`<div class="noCand warnbox">${esc(res.err)}</div>`;renderSummary();return}$("#candidateBody").innerHTML=list.map(a=>{const checked=state.selected.includes(a.code),fin=finalRate(a.base,n||1);return `<label class="cand ${checked?'sel':''}"><input type="checkbox" data-code="${a.code}" ${checked?'checked':''}><span class="candName">${esc(a.name)}${a.fromAddItem?'<em class="itemTag">追加アイテム</em>':''}</span><span class="base">${a.base}%</span><strong>${fin}%</strong></label>`}).join('')||'<div class="noCand">追加候補がありません</div>';$$('#candidateBody input').forEach(i=>i.onchange=()=>{if(i.checked){const max=Math.min(8,state.slots['本体'].length+1);if(state.selected.length>=max){i.checked=false;toast(`選択可能数は最大${max}個です（1回の追加で拡張は+1Sまで）`);return}const fk=familyKey(ability(i.dataset.code));if(fk)state.selected=state.selected.filter(c=>familyKey(ability(c))!==fk);state.selected.push(i.dataset.code)}else state.selected=state.selected.filter(c=>c!==i.dataset.code);renderCandidates();renderSummary()});renderSummary()}
+function renderCandidates(){const res=candidates(),list=res.list;state.selected=state.selected.filter(c=>list.some(x=>x.code===c));const n=state.selected.length;if(res.err){$("#candidateBody").innerHTML=`<div class="noCand warnbox">${esc(res.err)}</div>`;renderSummary();return}$("#candidateBody").innerHTML=list.map(a=>{const checked=state.selected.includes(a.code),fin=finalRate(a.base,n||1,a);return `<label class="cand ${checked?'sel':''}"><input type="checkbox" data-code="${a.code}" ${checked?'checked':''}><span class="candName">${esc(a.name)}${a.fromAddItem?'<em class="itemTag">追加アイテム</em>':''}</span><span class="base">${a.base}%</span><strong>${fin}%</strong></label>`}).join('')||'<div class="noCand">追加候補がありません</div>';$$('#candidateBody input').forEach(i=>i.onchange=()=>{if(i.checked){const max=Math.min(8,state.slots['本体'].length+1);if(state.selected.length>=max){i.checked=false;toast(`選択可能数は最大${max}個です（1回の追加で拡張は+1Sまで）`);return}const fk=familyKey(ability(i.dataset.code));if(fk)state.selected=state.selected.filter(c=>familyKey(ability(c))!==fk);state.selected.push(i.dataset.code)}else state.selected=state.selected.filter(c=>c!==i.dataset.code);renderCandidates();renderSummary()});renderSummary()}
 
 function selectedBaseStats(){
   const totals={"S-ATK":0,"R-ATK":0,"T-ATK":0,"DEX":0,"S-DEF":0,"R-DEF":0,"T-DEF":0,"HP":0,"PP":0};
   const add=(key,val)=>{if(Object.prototype.hasOwnProperty.call(totals,key))totals[key]+=val};
   state.selected.forEach(code=>{
-    const a=ability(code); if(!a||!a.effect)return;
-    String(a.effect).split(',').map(x=>x.trim()).forEach(part=>{
+    const a=ability(code); const statText=a?.statEffect||a?.effect; if(!a||!statText)return;
+    String(statText).split(',').map(x=>x.trim()).forEach(part=>{
       let m=part.match(/^ALL([+-]\d+)$/i);
       if(m){const v=Number(m[1]);["S-ATK","R-ATK","T-ATK","DEX","S-DEF","R-DEF","T-DEF"].forEach(k=>add(k,v));return}
       m=part.match(/^S\/R\/T-ATK([+-]\d+)$/i);
@@ -376,7 +380,7 @@ function selectedBaseStats(){
 }
 function renderSummary(){
   const n=state.selected.length,res=candidates();
-  const rates=state.selected.map(c=>{const a=res.list.find(x=>x.code===c);return a?finalRate(a.base,n):0});
+  const rates=state.selected.map(c=>{const a=res.list.find(x=>x.code===c);return a?finalRate(a.base,n,a):0});
   const total=rates.length?rates.reduce((p,x)=>p*x/100,1)*100:0;
   const nm=sameNameMultiplier();
   const stats=selectedBaseStats();

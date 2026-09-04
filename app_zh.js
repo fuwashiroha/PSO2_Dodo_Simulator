@@ -48,6 +48,7 @@ function clearAllJunk(){
 
 function familyKey(a){
   if(!a)return '';
+  if(a.special==='sop')return 'sop:'+a.sopSlot;
   const basic=["パワー","シュート","テクニック","アーム","スタミナ","スピリタ","ボディ","リアクト","マインド","バーン","フリーズ","ショック","ミラージュ","パニック","ポイズン"];
   if(basic.includes(a.group))return 'basic:'+a.group;
   if(['soul','soul_standard','ether_soul','astral_soul','guardian_soul','ji_soul','ix_soul'].includes(a.special) || a.group==='ソール')return 'soul';
@@ -199,6 +200,7 @@ function recipeRate(a,counts){
 }
 function rawRate(a,counts,all){
   if(SLOTS.some(s=>state.factor[s].includes(a.code)))return 100;
+  if(a.special==='sop' && (counts[a.code]||0)>0)return 100;
   const count=counts[a.code]||0;
   const soulR=hasSpecial(all,'soul_receptor'), factorR=hasSpecial(all,'factor_receptor'), revR=hasSpecial(all,'reverie_receptor'), glareR=hasSpecial(all,'glare_receptor'), catR=hasSpecial(all,'catalyst_receptor'), markR=hasSpecial(all,'mark_receptor'), attackR=hasSpecial(all,'attack_receptor'), guardR=hasSpecial(all,'guard_receptor'), photonR=hasSpecial(all,'photon_receptor'), extR=hasSpecial(all,'ext_receptor'), photonCollect=hasSpecial(all,'photon_collect'), divineR=hasSpecial(all,'divine_receptor'), exceedR=hasSpecial(all,'exceed_receptor'), phraseR=hasSpecial(all,'phrase_receptor');
   let r=recipeRate(a,counts);
@@ -364,7 +366,9 @@ function sameNameMultiplier(){
 function guidanceBonus(){
   return state.slots['本体'].some(c=>ability(c)?.special==='guidance') ? 5 : 0
 }
-function finalRate(base,n){
+function finalRate(base,n,a=null){
+  // S级特殊能力继承固定100%，扩槽时也不受成功率降低影响。
+  if(a?.special==='sop' && base>0)return 100;
   // 同名装备补正为乘算；成功率道具、报酬期间、炼成之引导随后以加算处理。
   return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+state.support+state.campaign+guidanceBonus()))
 }
@@ -374,7 +378,7 @@ function renderCandidates(){
   const n=state.selected.length;
   if(res.err){$("#candidateBody").innerHTML=`<div class="noCand warnbox">${esc(res.err)}</div>`;renderSummary();return}
   $("#candidateBody").innerHTML=list.map(a=>{
-    const checked=state.selected.includes(a.code),fin=finalRate(a.base,n||1);
+    const checked=state.selected.includes(a.code),fin=finalRate(a.base,n||1,a);
     return `<label class="cand ${checked?'sel':''}" title="${esc(jpNote(a))}"><input type="checkbox" data-code="${a.code}" ${checked?'checked':''}><span class="candName">${esc(displayName(a))}${a.fromAddItem?'<em class="itemTag">追加道具</em>':''}</span><span class="base">${a.base}%</span><strong>${fin}%</strong></label>`
   }).join('')||'<div class="noCand">没有可追加的候选能力</div>';
   $$('#candidateBody input').forEach(i=>i.onchange=()=>{
@@ -394,8 +398,8 @@ function selectedBaseStats(){
   const totals={"S-ATK":0,"R-ATK":0,"T-ATK":0,"DEX":0,"S-DEF":0,"R-DEF":0,"T-DEF":0,"HP":0,"PP":0};
   const add=(key,val)=>{if(Object.prototype.hasOwnProperty.call(totals,key))totals[key]+=val};
   state.selected.forEach(code=>{
-    const a=ability(code); if(!a||!a.effect)return;
-    String(a.effect).split(',').map(x=>x.trim()).forEach(part=>{
+    const a=ability(code); const statText=a?.statEffect||a?.effect; if(!a||!statText)return;
+    String(statText).split(',').map(x=>x.trim()).forEach(part=>{
       let m=part.match(/^ALL([+-]\d+)$/i);
       if(m){const v=Number(m[1]);["S-ATK","R-ATK","T-ATK","DEX","S-DEF","R-DEF","T-DEF"].forEach(k=>add(k,v));return}
       m=part.match(/^S\/R\/T-ATK([+-]\d+)$/i);
@@ -410,7 +414,7 @@ function selectedBaseStats(){
 }
 function renderSummary(){
   const n=state.selected.length,res=candidates();
-  const rates=state.selected.map(c=>{const a=res.list.find(x=>x.code===c);return a?finalRate(a.base,n):0});
+  const rates=state.selected.map(c=>{const a=res.list.find(x=>x.code===c);return a?finalRate(a.base,n,a):0});
   const total=rates.length?rates.reduce((p,x)=>p*x/100,1)*100:0;
   const nm=sameNameMultiplier();
   const stats=selectedBaseStats();
