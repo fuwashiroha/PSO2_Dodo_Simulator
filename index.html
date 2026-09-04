@@ -41,8 +41,11 @@
       <label class="sameNameControl" id="sameNameLabel" title="本体と、現在使用している全素材が完全に同じ装備名の場合のみ有効">
         <input type="checkbox" id="sameName"><span id="sameNameText">本体・使用素材はすべて同名</span>
       </label>
-      <label class="sameNameControl" id="addItemLabel" title="特殊能力追加アイテムを1個使用し、追加アイテム能力を候補に表示します">
-        <input type="checkbox" id="addItem"><span id="addItemText">追加アイテムを使用</span>
+      <label class="sameNameControl" id="addItemLabel" title="使用する特殊能力追加アイテムを1つ選択します">
+        <span id="addItemText">追加アイテム</span>
+        <select id="addItemSelect">
+          <option value="">使用しない</option>
+        </select>
       </label>
       <div class="junkTools">
         <label><span id="junkFillText">全本体・素材をゴミで</span>
