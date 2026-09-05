@@ -11,8 +11,8 @@ function esc(s){return String(s).replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",
 function ability(code){return DATA.find(x=>x.code===code)}
 function byName(name){return DATA.find(x=>x.name===name)}
 function countByName(counts,name){return DATA.filter(x=>x.name===name).reduce((sum,a)=>sum+(counts[a.code]||0),0)}
-function saveHash(){const mini={s:state.slots,f:state.factor,b:state.support,c:state.campaign,n:!!state.sameName,i:state.addItemCode||'',x:state.selected};const raw=encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(mini)))));history.replaceState(null,"","#"+raw)}
-function loadHash(){if(!location.hash)return;try{const o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(1))))));if(o.s)state.slots=o.s;if(o.f)state.factor=o.f;if(Number.isFinite(o.b))state.support=o.b;if(Number.isFinite(o.c))state.campaign=o.c;if(typeof o.n==="boolean")state.sameName=o.n;if(typeof o.i==="string")state.addItemCode=o.i;
+function saveHash(){const mini={s:state.slots,f:state.factor,b:state.support,c:state.campaign,n:!!state.sameName,w:!!state.lowRarityWeapon,i:state.addItemCode||'',x:state.selected};const raw=encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(mini)))));history.replaceState(null,"","#"+raw)}
+function loadHash(){if(!location.hash)return;try{const o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(1))))));if(o.s)state.slots=o.s;if(o.f)state.factor=o.f;if(Number.isFinite(o.b))state.support=o.b;if(Number.isFinite(o.c))state.campaign=o.c;if(typeof o.n==="boolean")state.sameName=o.n;state.lowRarityWeapon=o.w===true;if(typeof o.i==="string")state.addItemCode=o.i;
 if(typeof o.i==="boolean"&&o.i){
   const oldChosen=(o.x||[]).find(c=>ability(c)?.addItemAvailable);
   state.addItemCode=oldChosen||'';
@@ -32,7 +32,7 @@ function normalizeState(){
 }
 function saveLocal(){localStorage.setItem("pso2-dodo-offline-v9",JSON.stringify(state));toast("已保存到本地")}
 function loadLocal(){try{const o=JSON.parse(localStorage.getItem("pso2-dodo-offline-v9")||localStorage.getItem("pso2-dodo-offline-v8")||localStorage.getItem("pso2-dodo-offline-v7")||localStorage.getItem("pso2-dodo-offline-v6")||localStorage.getItem("pso2-dodo-offline-v5")||localStorage.getItem("pso2-dodo-offline-v4")||localStorage.getItem("pso2-dodo-offline-v3")||localStorage.getItem("pso2-dodo-offline-v2")||localStorage.getItem("pso2-dodo-offline"));if(o){state=o;state.selected=state.selected||[];state.sameName=!!state.sameName;normalizeState();render();toast("已读取保存数据")}}catch(e){}}
-function resetAll(){state={slots:Object.fromEntries(SLOTS.map(x=>[x,[]])),factor:Object.fromEntries(SLOTS.map(x=>[x,[]])),support:0,campaign:0,sameName:false,addItemCode:'',selected:[]};render()}
+function resetAll(){state={slots:Object.fromEntries(SLOTS.map(x=>[x,[]])),factor:Object.fromEntries(SLOTS.map(x=>[x,[]])),support:0,campaign:0,sameName:false,lowRarityWeapon:false,addItemCode:'',selected:[]};render()}
 
 function fillAllWithJunk(target){
   target=Math.max(1,Math.min(8,Number(target)||1));
@@ -59,6 +59,10 @@ function familyKey(a){
   if(!a)return '';
   if(a.special==='sop')return 'sop:'+a.sopSlot;
   const basic=["パワー","シュート","テクニック","アーム","スタミナ","スピリタ","ボディ","リアクト","マインド","バーン","フリーズ","ショック","ミラージュ","パニック","ポイズン"];
+  if(['バーン','フリーズ','ショック','ミラージュ','パニック','ポイズン'].includes(a.group))return 'status';
+  if(a.special==='gift')return a.name==='メセタフィーバーⅡ'?'gift_meseta2':'gift';
+  if(a.special==='all_resist')return 'all_resist';
+  if(a.categoryZh==='耐性')return 'resist:'+a.group;
   if(basic.includes(a.group))return 'basic:'+a.group;
   if(['soul','soul_standard','ether_soul','astral_soul','guardian_soul','ji_soul','ix_soul'].includes(a.special) || a.group==='ソール')return 'soul';
   if(['glare','absolute_glare'].includes(a.special))return 'glare';
@@ -76,7 +80,7 @@ function familyKey(a){
   if(a.group==='アルター'||a.group==='フリクト'||a.name==='スティグマ')return 'alter_flict_stigma';
   if(a.name==='ウィンクルム'||a.name==='アクス・MAX'||a.name==='モデュレイター')return 'wink_mod_ax';
   if(['divine_will','divine_order'].includes(a.special))return 'divine';
-  if(a.addItemAvailable||a.group==='追加アイテム')return 'add_item';
+  if(a.group==='追加アイテム')return 'add_item';
   if(a.group==='ドゥーム')return 'doom';
   if(/^アビリティ[ⅠⅡⅢⅣⅤⅥ]+$/.test(a.name))return 'ability';
   if(/^ミューテーション[ⅠⅡⅢⅣⅤⅥ]+$/.test(a.name))return 'mutation';
@@ -186,182 +190,8 @@ function renderSlots(){
 
 function countName(counts,n){return countByName(counts,n)}
 function hasSpecial(all,sp){return all.some(c=>ability(c)?.special===sp)}
-function recipeRate(a,counts){
-  const n=a.name;
-  // EV系: 対応するレッサー攻撃Ⅴ + レッサースタミナⅤ/スピリタⅤ の2種類で50%特殊合成。
-  if(a.special==='ev' && Array.isArray(a.recipe) && a.recipe.length===2 &&
-     countName(counts,a.recipe[0])>=1 && countName(counts,a.recipe[1])>=1)return 50;
-  if(n==='ガーディアン・ソール' && countName(counts,'アストラル・ソール')>=1 && countName(counts,'エーテル・ファクター')>=1 && countName(counts,'マナ・レヴリー')>=1 && countName(counts,'アブソリュート・グレア')>=1)return 10;
-  if(n==='アストラル・ソール' && countName(counts,'ソール・カタリスト')>=4 && countName(counts,'ダークネス・ソール')>=1)return 60;
-  if(n==='マナ・レヴリー' && countName(counts,'レヴリー・カタリスト')>=4 && countName(counts,'オメガ・メモリア')>=1)return 60;
-  if(n==='アブソリュート・グレア' && countName(counts,'グレア・カタリスト')>=4 && countName(counts,'フォトナー・グレア')>=1)return 60;
-  if(n==='フォトナー・グレア' && ['ヴァルナ・グレア','ミトラ・グレア','シバ・グレア','オリジン・グレア'].every(x=>countName(counts,x)>=1))return 10;
-  if(n==='グレア・カタリスト' && countName(counts,'ベルージュ・グレア')>=1 && countName(counts,'フォードルス・グレア')>=1 && countName(counts,'エクゼクル・グレア')>=1 && (countName(counts,'アンジュール・グレア')>=1||countName(counts,'ドゥミヌス・グレア')>=1))return 10;
-  if(n==='ソール・カタリスト' && ['エルダー・ソール','ルーサー・ソール','アプレンティス・ソール','ダブル・ソール','ペルソナ・ソール'].every(x=>countName(counts,x)>=1))return 10;
-  if(n==='ファクター・カタリスト' && ['ヤマト・ファクター','マザー・ファクター','デウス・ファクター'].every(x=>countName(counts,x)>=1))return 10;
-  if(n==='レヴリー・カタリスト' && ['エルダー・レヴリー','ルーサー・レヴリー','アプレジナ・レヴリー','ダブル・レヴリー','ペルソナ・レヴリー'].every(x=>countName(counts,x)>=1))return 10;
-  if(n==='エーテル・ソール'){
-    const ep4=['トウオウ・ソール','フルベガス・ソール','エスカード・ソール'].filter(x=>countName(counts,x)>=1).length;
-    if(ep4>=2)return 10;
-  }
-  if(n==='エーテル・ファクター' && countName(counts,'ファクター・カタリスト')>=4 && countName(counts,'エーテル・ソール')>=1)return 60;
-  return 0;
-}
-function rawRate(a,counts,all){
-  if(SLOTS.some(s=>state.factor[s].includes(a.code)))return 100;
-  if(a.special==='sop' && (counts[a.code]||0)>0)return 100;
-  const count=counts[a.code]||0;
-  const soulR=hasSpecial(all,'soul_receptor'), factorR=hasSpecial(all,'factor_receptor'), revR=hasSpecial(all,'reverie_receptor'), glareR=hasSpecial(all,'glare_receptor'), catR=hasSpecial(all,'catalyst_receptor'), markR=hasSpecial(all,'mark_receptor'), attackR=hasSpecial(all,'attack_receptor'), guardR=hasSpecial(all,'guard_receptor'), photonR=hasSpecial(all,'photon_receptor'), extR=hasSpecial(all,'ext_receptor'), photonCollect=hasSpecial(all,'photon_collect'), divineR=hasSpecial(all,'divine_receptor'), exceedR=hasSpecial(all,'exceed_receptor'), phraseR=hasSpecial(all,'phrase_receptor');
-  let r=recipeRate(a,counts);
-  // Receptors never create a target from nothing. The target ability itself must exist.
-  if(a.group==='レセプター')return r;
-  // マーク系は通常継承不可。マークレセプターがあり、対象マーク自体が素材に存在する時のみ100%。
-  if(a.special==='mark'){
-    return (count>0 && markR) ? 100 : r;
-  }
-
-  // アタックレセプター: パワー/シュート/テクニック/アーム V・VI の同ランク継承を100%。
-  if(attackR && count>0 && ['パワー','シュート','テクニック','アーム'].includes(a.group) && a.rank>=5){
-    r=Math.max(r,100);
-  }
-
-  // ガードレセプター: ボディ/リアクト/マインド V の同ランク継承を100%。
-  if(guardR && count>0 && ['ボディ','リアクト','マインド'].includes(a.group) && a.rank===5){
-    r=Math.max(r,100);
-  }
-
-  // フォトンレセプター: スタミナ/スピリタ V・VI の同ランク継承を100%。
-  if(photonR && count>0 && ['スタミナ','スピリタ'].includes(a.group) && a.rank>=5){
-    r=Math.max(r,100);
-  }
-
-  // エクストレセプター: アルター/フリクト系を100%継承。
-  if(extR && count>0 && ['アルター','フリクト'].includes(a.group)){
-    r=Math.max(r,100);
-  }
-
-  // ディバイン系 / イクシード系は通常継承不可。対応レセプターがあり、対象能力自体が素材に存在する時のみ100%。
-  if(a.special==='divine_will' || a.special==='divine_order'){
-    return (count>0 && divineR) ? 100 : r;
-  }
-  if(a.special==='exceed_energy'){
-    return (count>0 && exceedR) ? 100 : r;
-  }
-
-  // 言灵系通常无法继承。存在言灵保护，且对应言灵能力本身位于本体/素材时，继承率为100%。
-  if(a.special==='phrase'){
-    return (count>0 && phraseR) ? 100 : r;
-  }
-
-  // フォトンコレクト: 6種状態異常のランクアップだけを強化。
-  // II→III 100%, III→IV 70%, IV→V 50%。
-  if(photonCollect && ['バーン','フリーズ','ショック','ミラージュ','パニック','ポイズン'].includes(a.group) && a.rank>=3){
-    const prev=DATA.find(x=>x.group===a.group&&x.rank===a.rank-1);
-    const pc=prev?(counts[prev.code]||0):0;
-    if(pc>=2){
-      const pr = a.rank===3 ? 100 : (a.rank===4 ? 70 : (a.rank===5 ? 50 : 0));
-      r=Math.max(r,pr);
-    }
-  }
-
-  // レッサー系:
-  // 継承 I: 2個80% / 3個100%
-  //      II: 2個70% / 3個100%
-  //     III: 2個50% / 3個100%
-  //      IV: 2個40% / 3個100%
-  //       V: 2個30% / 3個100%
-  // 合成は1ランク下を3個: II 70% / III 50% / IV 30% / V 20%。
-  if(a.special==='lesser'){
-    const count=counts[a.code]||0;
-    if(count>0) r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(a.rank>1){
-      const prev=DATA.find(x=>x.special==='lesser'&&x.lesserFamily===a.lesserFamily&&x.rank===a.rank-1);
-      const pc=prev?(counts[prev.code]||0):0;
-      if(pc>0) r=Math.max(r,a.combine?.[Math.min(pc,3)-1]||0);
-    }
-    return r;
-  }
-
-  // EV系は通常継承不可。候補は上記の特殊合成（または特殊能力因子）でのみ生成。
-  if(a.special==='ev') return r;
-
-  // リターナー / クラック: exact transfer/generation rules.
-  if(a.special==='returner' || a.special==='crack'){
-    const count=counts[a.code]||0;
-    if(count>0) r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(a.rank>1){
-      const prev=DATA.find(x=>x.group===a.group&&x.rank===a.rank-1);
-      const pc=prev?(counts[prev.code]||0):0;
-      if(pc>0) r=Math.max(r,a.combine?.[Math.min(pc,3)-1]||0);
-    }
-    // Darkness Soul is a +10% catalyst only for Returner III/IV transfer/generation.
-    if(a.special==='returner' && (a.rank===3 || a.rank===4) && countName(counts,'ダークネス・ソール')>=1 && r>0){
-      r=Math.min(100,r+10);
-    }
-    return r;
-  }
-  // Doom Break II/III generation uses 3/4/5 copies of the previous tier -> 10/30/50.
-  if(a.special==='doom2' || a.special==='doom3'){
-    const count=counts[a.code]||0;
-    if(count>0) r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    const prev=DATA.find(x=>x.group==='ドゥーム'&&x.rank===a.rank-1);
-    const pc=prev?(counts[prev.code]||0):0;
-    if(pc>=3) r=Math.max(r, pc>=5?50:(pc===4?30:10));
-    return r;
-  }
-  if(a.special==='ether_soul'){
-    if(count>0) r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(count>0&&soulR) r=Math.max(r,100);
-    return r;
-  }
-  if(a.special==='guardian_soul')return Math.max(r,(count>0&&soulR)?10:0);
-  if(a.special==='astral_soul')return Math.max(r,(count>0&&soulR)?10:0);
-  if(a.special==='ether_factor')return Math.max(r,(count>0&&factorR)?10:0);
-  if(a.special==='mana_reverie')return Math.max(r,(count>0&&revR)?10:0);
-  if(a.special==='absolute_glare')return Math.max(r,(count>0&&glareR)?10:0);
-  if(a.special==='glare'){
-    if(count>0)r=Math.max(r,count>=2?50:30);
-    // ディバイン系触媒: ウィル +20%、オーダー +30%。両方ある場合はオーダーの+30%のみ適用。
-    if(count>0){
-      const divineBonus = hasSpecial(all,'divine_order') ? 30 : (hasSpecial(all,'divine_will') ? 20 : 0);
-      if(divineBonus) r=Math.min(100,r+divineBonus);
-    }
-    if(count>0&&glareR)r=Math.max(r,100);
-    return r;
-  }
-  if(a.special==='factor'){
-    if(count>0)r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(count>0&&factorR)r=Math.max(r,100);return r;
-  }
-  if(a.special==='reverie'){
-    if(count>0)r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(count>0&&revR)r=Math.max(r,100);return r;
-  }
-  if(['soul_catalyst','factor_catalyst','reverie_catalyst','glare_catalyst'].includes(a.special)){
-    // カタリストレセプターは対象カタリストそのものが素材に1個以上存在する場合のみ100%。
-    // レセプター単独では候補を生成しない。
-    if(count>0 && catR) return 100;
-    // グレア・カタリストは通常継承不可。その他3種は2個10% / 3個30%。
-    if(a.special==='glare_catalyst') return r;
-    if(count>0) r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    return r;
-  }
-  if(a.special==='ji_soul'){
-    if(count>0)r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(count>0&&soulR)r=Math.max(r,50);return r;
-  }
-  if(a.special==='ix_soul'){
-    if(count>0)r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(count>0&&soulR)r=Math.min(100,r+10);return r;
-  }
-  if(a.special==='soul'||a.special==='soul_standard'||a.group==='ソール'){
-    if(count>0)r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-    if(count>0&&soulR)r=Math.max(r,100);return r;
-  }
-  if(count>0)r=Math.max(r,a.inherit[Math.min(count,3)-1]||0);
-  if(a.rank>1){const prev=DATA.find(x=>x.group===a.group&&x.rank===a.rank-1);const pc=prev?(counts[prev.code]||0):0;if(pc>0)r=Math.max(r,a.combine?.[Math.min(pc,3)-1]||0)}
-  return r;
-}
+function recipeRate(a,counts){return window.PSO2_RULES.recipeRate(a,counts)}
+function rawRate(a,counts,all){return window.PSO2_RULES.rawRate(a,counts,all,SLOTS.some(s=>state.factor[s].includes(a.code)),state.lowRarityWeapon===true)}
 function validationError(){const bs=state.slots['本体'].length;const used=SLOTS.slice(1).filter(s=>state.slots[s].length>0);if(!used.length)return '请至少设置1件素材';const bad=used.find(s=>state.slots[s].length<bs);if(bad)return `${SLOT_LABEL[bad]}需要至少与本体相同的槽位数（${bs}S）`;return ''}
 function candidates(){const err=validationError();if(err)return {list:[],err};const all=SLOTS.flatMap(s=>state.slots[s]);const counts={};all.forEach(c=>counts[c]=(counts[c]||0)+1);const out=[];DATA.forEach(a=>{let base=rawRate(a,counts,all),fromAddItem=false;
   if(a.addItemOnly&&a.addItemAvailable&&state.addItemCode!==a.code)base=0;
@@ -379,10 +209,11 @@ function guidanceBonus(){
   return state.slots['本体'].some(c=>ability(c)?.special==='guidance') ? 5 : 0
 }
 function finalRate(base,n,a=null){
+  if(base<=0)return 0;
   // S级特殊能力继承固定100%，扩槽时也不受成功率降低影响。
   if(a?.special==='sop' && base>0)return 100;
   // 同名装备补正为乘算；成功率道具、报酬期间、炼成之引导随后以加算处理。
-  return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+state.support+state.campaign+guidanceBonus()))
+  return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+1e-9)+state.support+state.campaign+guidanceBonus())
 }
 function renderCandidates(){
   const res=candidates(),list=res.list;
@@ -434,10 +265,10 @@ function renderSummary(){
   const statHtml=Object.entries(statLabels).map(([k,label])=>`<div><span>${label}</span><strong>${stats[k]>=0?'+':''}${stats[k]}</strong></div>`).join('');
   $("#summary").innerHTML=`<div><b>已选：</b> ${n}个 ${n>state.slots['本体'].length?'<span class="warn">扩张</span>':''}</div>${state.sameName?`<div><b>同名装备补正：</b> ×${nm.toFixed(2)}</div>`:''}<div><b>综合成功率：</b> <strong>${total.toFixed(2)}%</strong></div><div class="small">按各能力独立判定计算全部成功的概率</div><div class="statSummary"><div class="statTitle">所选能力基础属性合计</div><div class="statGrid">${statHtml}</div></div>`
 }
-function render(){$("#support").value=state.support;$("#campaign").value=state.campaign;$("#sameName").checked=!!state.sameName;$("#addItemSelect").value=state.addItemCode||"";renderList();renderSlots();renderCandidates();saveHash()}
+function render(){$("#support").value=state.support;$("#campaign").value=state.campaign;$("#sameName").checked=!!state.sameName;$("#lowRarityWeapon").checked=!!state.lowRarityWeapon;$("#addItemSelect").value=state.addItemCode||"";renderList();renderSlots();renderCandidates();saveHash()}
 function toast(t){const x=$("#toast");x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1600)}
 function initApp(){loadHash();[...new Set(DATA.map(a=>displayCategory(a)))].sort((a,b)=>a.localeCompare(b,'zh-CN')).forEach(g=>$("#group").insertAdjacentHTML('beforeend',`<option>${esc(g)}</option>`));
-const addSel=$("#addItemSelect");addSel.options[0].textContent='不使用';DATA.filter(a=>a.addItemAvailable).sort((a,b)=>displayName(a).localeCompare(displayName(b),'zh-CN')).forEach(a=>addSel.insertAdjacentHTML('beforeend',`<option value="${esc(a.code)}">${esc(displayName(a))}</option>`));$("#search").oninput=renderList;$("#group").onchange=renderList;$("#support").onchange=e=>{state.support=+e.target.value;render()};$("#campaign").onchange=e=>{state.campaign=+e.target.value;render()};$("#sameName").onchange=e=>{state.sameName=!!e.target.checked;render()};$("#addItemSelect").onchange=e=>{
+const addSel=$("#addItemSelect");addSel.options[0].textContent='不使用';DATA.filter(a=>a.addItemAvailable).sort((a,b)=>displayName(a).localeCompare(displayName(b),'zh-CN')).forEach(a=>addSel.insertAdjacentHTML('beforeend',`<option value="${esc(a.code)}">${esc(displayName(a))}</option>`));$("#search").oninput=renderList;$("#group").onchange=renderList;$("#support").onchange=e=>{state.support=+e.target.value;render()};$("#campaign").onchange=e=>{state.campaign=+e.target.value;render()};$("#lowRarityWeapon").onchange=e=>{state.lowRarityWeapon=!!e.target.checked;render()};$("#sameName").onchange=e=>{state.sameName=!!e.target.checked;render()};$("#addItemSelect").onchange=e=>{
   const old=state.addItemCode||'';
   state.addItemCode=e.target.value||'';
   if(old&&old!==state.addItemCode)state.selected=state.selected.filter(c=>c!==old);
