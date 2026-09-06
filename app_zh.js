@@ -5,19 +5,21 @@ function displayName(a){return a?.nameZh||a?.name||''}
 function displayCategory(a){return a?.categoryZh||a?.group||''}
 function displayEffect(a){return a?.effectZh||a?.effect||''}
 function jpNote(a){return `日文名：${a?.name||''}`;}
-let state = { slots:Object.fromEntries(SLOTS.map(x=>[x,[]])), factor:Object.fromEntries(SLOTS.map(x=>[x,[]])), support:0, campaign:0, sameName:false, addItemCode:'', selected:[] };
+let state = { slots:Object.fromEntries(SLOTS.map(x=>[x,[]])), factor:Object.fromEntries(SLOTS.map(x=>[x,[]])), support:0, campaign:0, sameName:false,lifeGuidance:false,abilityProtection:"", addItemCode:'', selected:[] };
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 function esc(s){return String(s).replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function ability(code){return DATA.find(x=>x.code===code)}
 function byName(name){return DATA.find(x=>x.name===name)}
 function countByName(counts,name){return DATA.filter(x=>x.name===name).reduce((sum,a)=>sum+(counts[a.code]||0),0)}
-function saveHash(){const mini={s:state.slots,f:state.factor,b:state.support,c:state.campaign,n:!!state.sameName,w:!!state.lowRarityWeapon,i:state.addItemCode||'',x:state.selected};const raw=encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(mini)))));history.replaceState(null,"","#"+raw)}
-function loadHash(){if(!location.hash)return;try{const o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(1))))));if(o.s)state.slots=o.s;if(o.f)state.factor=o.f;if(Number.isFinite(o.b))state.support=o.b;if(Number.isFinite(o.c))state.campaign=o.c;if(typeof o.n==="boolean")state.sameName=o.n;state.lowRarityWeapon=o.w===true;if(typeof o.i==="string")state.addItemCode=o.i;
+function saveHash(){const mini={s:state.slots,f:state.factor,b:state.support,c:state.campaign,n:!!state.sameName,l:!!state.lifeGuidance,p:state.abilityProtection||"",w:!!state.lowRarityWeapon,i:state.addItemCode||'',x:state.selected};const raw=encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(mini)))));history.replaceState(null,"","#"+raw)}
+function loadHash(){if(!location.hash)return;try{const o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(1))))));if(o.s)state.slots=o.s;if(o.f)state.factor=o.f;if(Number.isFinite(o.b))state.support=o.b;if(Number.isFinite(o.c))state.campaign=o.c;if(typeof o.n==="boolean")state.sameName=o.n;state.lowRarityWeapon=o.w===true;state.lifeGuidance=o.l===true;state.abilityProtection=o.p||"";if(typeof o.i==="string")state.addItemCode=o.i;
 if(typeof o.i==="boolean"&&o.i){
   const oldChosen=(o.x||[]).find(c=>ability(c)?.addItemAvailable);
   state.addItemCode=oldChosen||'';
 }if(Array.isArray(o.x))state.selected=o.x;normalizeState()}catch(e){}}
 function normalizeState(){
+  if(!["5","6","7","8"].includes(state.abilityProtection))state.abilityProtection="";
+  state.lifeGuidance=state.lifeGuidance===true;
   const alias={SO046:"CF01"};
   for(const s of SLOTS){
     state.slots[s]=(state.slots?.[s]||[]).map(c=>alias[c]||c).filter(c=>ability(c));
@@ -32,7 +34,7 @@ function normalizeState(){
 }
 function saveLocal(){localStorage.setItem("pso2-dodo-offline-v9",JSON.stringify(state));toast("已保存到本地")}
 function loadLocal(){try{const o=JSON.parse(localStorage.getItem("pso2-dodo-offline-v9")||localStorage.getItem("pso2-dodo-offline-v8")||localStorage.getItem("pso2-dodo-offline-v7")||localStorage.getItem("pso2-dodo-offline-v6")||localStorage.getItem("pso2-dodo-offline-v5")||localStorage.getItem("pso2-dodo-offline-v4")||localStorage.getItem("pso2-dodo-offline-v3")||localStorage.getItem("pso2-dodo-offline-v2")||localStorage.getItem("pso2-dodo-offline"));if(o){state=o;state.selected=state.selected||[];state.sameName=!!state.sameName;normalizeState();render();toast("已读取保存数据")}}catch(e){}}
-function resetAll(){state={slots:Object.fromEntries(SLOTS.map(x=>[x,[]])),factor:Object.fromEntries(SLOTS.map(x=>[x,[]])),support:0,campaign:0,sameName:false,lowRarityWeapon:false,addItemCode:'',selected:[]};render()}
+function resetAll(){state={slots:Object.fromEntries(SLOTS.map(x=>[x,[]])),factor:Object.fromEntries(SLOTS.map(x=>[x,[]])),support:0,campaign:0,sameName:false,lifeGuidance:false,abilityProtection:"",lowRarityWeapon:false,addItemCode:'',selected:[]};render()}
 
 function fillAllWithJunk(target){
   target=Math.max(1,Math.min(8,Number(target)||1));
@@ -213,7 +215,7 @@ function finalRate(base,n,a=null){
   // S级特殊能力继承固定100%，扩槽时也不受成功率降低影响。
   if(a?.special==='sop' && base>0)return 100;
   // 同名装备补正为乘算；成功率道具、报酬期间、炼成之引导随后以加算处理。
-  return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+1e-9)+state.support+state.campaign+guidanceBonus())
+  return Math.min(100,Math.floor(base*slotPenalty(n)*sameNameMultiplier()+1e-9)+state.support+state.campaign+guidanceBonus()+(state.lifeGuidance?10:0))
 }
 function renderCandidates(){
   const res=candidates(),list=res.list;
@@ -265,10 +267,10 @@ function renderSummary(){
   const statHtml=Object.entries(statLabels).map(([k,label])=>`<div><span>${label}</span><strong>${stats[k]>=0?'+':''}${stats[k]}</strong></div>`).join('');
   $("#summary").innerHTML=`<div><b>已选：</b> ${n}个 ${n>state.slots['本体'].length?'<span class="warn">扩张</span>':''}</div>${state.sameName?`<div><b>同名装备补正：</b> ×${nm.toFixed(2)}</div>`:''}<div><b>综合成功率：</b> <strong>${total.toFixed(2)}%</strong></div><div class="small">按各能力独立判定计算全部成功的概率</div><div class="statSummary"><div class="statTitle">所选能力基础属性合计</div><div class="statGrid">${statHtml}</div></div>`
 }
-function render(){$("#support").value=state.support;$("#campaign").value=state.campaign;$("#sameName").checked=!!state.sameName;$("#lowRarityWeapon").checked=!!state.lowRarityWeapon;$("#addItemSelect").value=state.addItemCode||"";renderList();renderSlots();renderCandidates();saveHash()}
+function render(){$("#support").value=state.support;$("#campaign").value=state.campaign;$("#sameName").checked=!!state.sameName;$("#lifeGuidance").checked=!!state.lifeGuidance;$("#abilityProtection").value=state.abilityProtection||"";$("#lowRarityWeapon").checked=!!state.lowRarityWeapon;$("#addItemSelect").value=state.addItemCode||"";renderList();renderSlots();renderCandidates();saveHash()}
 function toast(t){const x=$("#toast");x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1600)}
 function initApp(){loadHash();[...new Set(DATA.map(a=>displayCategory(a)))].sort((a,b)=>a.localeCompare(b,'zh-CN')).forEach(g=>$("#group").insertAdjacentHTML('beforeend',`<option>${esc(g)}</option>`));
-const addSel=$("#addItemSelect");addSel.options[0].textContent='不使用';DATA.filter(a=>a.addItemAvailable).sort((a,b)=>displayName(a).localeCompare(displayName(b),'zh-CN')).forEach(a=>addSel.insertAdjacentHTML('beforeend',`<option value="${esc(a.code)}">${esc(displayName(a))}</option>`));$("#search").oninput=renderList;$("#group").onchange=renderList;$("#support").onchange=e=>{state.support=+e.target.value;render()};$("#campaign").onchange=e=>{state.campaign=+e.target.value;render()};$("#lowRarityWeapon").onchange=e=>{state.lowRarityWeapon=!!e.target.checked;render()};$("#sameName").onchange=e=>{state.sameName=!!e.target.checked;render()};$("#addItemSelect").onchange=e=>{
+const addSel=$("#addItemSelect");addSel.options[0].textContent='不使用';DATA.filter(a=>a.addItemAvailable).sort((a,b)=>displayName(a).localeCompare(displayName(b),'zh-CN')).forEach(a=>addSel.insertAdjacentHTML('beforeend',`<option value="${esc(a.code)}">${esc(displayName(a))}</option>`));$("#search").oninput=renderList;$("#group").onchange=renderList;$("#support").onchange=e=>{state.support=+e.target.value;render()};$("#campaign").onchange=e=>{state.campaign=+e.target.value;render()};$("#lowRarityWeapon").onchange=e=>{state.lowRarityWeapon=!!e.target.checked;render()};$("#abilityProtection").onchange=e=>{state.abilityProtection=e.target.value;render()};$("#lifeGuidance").onchange=e=>{state.lifeGuidance=!!e.target.checked;render()};$("#sameName").onchange=e=>{state.sameName=!!e.target.checked;render()};$("#addItemSelect").onchange=e=>{
   const old=state.addItemCode||'';
   state.addItemCode=e.target.value||'';
   if(old&&old!==state.addItemCode)state.selected=state.selected.filter(c=>c!==old);
