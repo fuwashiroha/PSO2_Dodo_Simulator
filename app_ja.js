@@ -12,7 +12,7 @@ if(typeof o.i==="boolean"&&o.i){
   state.addItemCode=oldChosen||'';
 }if(Array.isArray(o.x))state.selected=o.x;normalizeState()}catch(e){}}
 function normalizeState(){
-  if(!["5","6","7","8"].includes(state.abilityProtection))state.abilityProtection="";
+  if(!["4","5","6","7","8"].includes(state.abilityProtection))state.abilityProtection="";
   state.lifeGuidance=state.lifeGuidance===true;
   const alias={SO046:"CF01"};
   for(const s of SLOTS){
