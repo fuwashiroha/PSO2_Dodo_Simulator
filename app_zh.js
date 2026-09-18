@@ -54,7 +54,7 @@ function clearAllJunk(){
   }
   state.selected=state.selected.filter(c=>ability(c)?.special!=='junk');
   render();
-  toast(removed?`已删除${removed}个垃圾能力`:'当前没有垃圾能力')
+  toast(removed?`已删除${removed}个占位能力`:'当前没有占位能力')
 }
 
 function familyKey(a){
@@ -90,7 +90,7 @@ function familyKey(a){
 }
 function renderList(){
   const q=window.normalizeAbilitySearch($("#search").value.trim()),g=$("#group").value;
-  const list=DATA.filter(a=>!a.addItemOnly&&(!g||displayCategory(a)===g)&&(!q||window.normalizeAbilitySearch(`${displayName(a)} ${a.name} ${displayEffect(a)} ${displayCategory(a)}`).includes(q)));
+  const list=DATA.filter(a=>!a.addItemOnly&&(!g||displayCategory(a)===g)&&(!q||window.normalizeAbilitySearch(window.abilitySearchText(a,displayEffect(a),displayCategory(a))).includes(q)));
   $("#abilityList").innerHTML=list.map(a=>`<div class="ability" draggable="true" data-code="${a.code}" title="${esc(jpNote(a))}"><span>${esc(displayName(a))}</span><small>${esc(displayEffect(a)||displayCategory(a))}</small></div>`).join('');
   $$("#abilityList .ability").forEach(el=>{
     el.addEventListener("dragstart",e=>{e.dataTransfer.effectAllowed="copy";e.dataTransfer.setData("text/plain",JSON.stringify({type:"library",code:el.dataset.code}))});
