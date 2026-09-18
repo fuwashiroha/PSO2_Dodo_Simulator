@@ -303,9 +303,10 @@ window.installWorkspace = function(){
   $('#materialTitle').textContent=T('素材工作区 · 第一位置为本体','素材ワークスペース · 先頭が本体');
   $('#materialTitle').insertAdjacentHTML('afterend',`<div id="planTabs" role="tablist" aria-label="${T('追加方案','追加プラン')}"></div><div class="planTools"><button id="renamePlan">${T('重命名方案','プラン名変更')}</button><button id="duplicatePlan">${T('复制方案','プラン複製')}</button><button id="undoWorkspace" disabled>${T('撤销上一步','元に戻す')}</button></div><div class="dragInstructions">${T('按住标题拖动：中央交换 · Ctrl覆盖复制 · 间隙插入。第一位置始终是本体；拖到背包可生成副本。','タイトルをドラッグ：中央で交換 · Ctrlで上書きコピー · 隙間へ挿入。先頭は常に本体。バッグへドラッグでコピー。')}</div>`);
   $('#load').insertAdjacentHTML('afterend',`<button id="guardianChain">${T('守护魂合成链','ガーディアン合成')}</button><button id="exportWorkspace">${T('导出文件','エクスポート')}</button><button id="importWorkspace">${T('导入文件','インポート')}</button><input id="workspaceFile" type="file" accept=".json,application/json" hidden>`);
-  $('#candidateTitle').insertAdjacentHTML('beforebegin',`<div class="panelTitle inventoryTitle">${T('道具背包','アイテムバッグ')} <span id="inventoryCount">0</span></div><div id="inventoryGrid" data-drop-label="${T('松开以复制到背包','離してバッグにコピー')}"></div>`);
+  $('#candidateTitle').insertAdjacentHTML('beforebegin',`<div class="panelTitle inventoryTitle">${T('道具背包','アイテムバッグ')} <span id="inventoryCount">0</span><button id="openTransfer">${T('特殊能力移植','特殊能力移植')}</button></div><div id="inventoryGrid" data-drop-label="${T('松开以复制到背包','離してバッグにコピー')}"></div>`);
   $('#summary').insertAdjacentHTML('afterend','<div id="affixActions"></div>');
   document.body.insertAdjacentHTML('beforeend',`<dialog id="workspaceDialog" aria-labelledby="workspaceDialogTitle"><div class="dialogHead"><h2 id="workspaceDialogTitle"></h2><button id="closeDialog" aria-label="${T('关闭','閉じる')}">×</button></div><div id="workspaceDialogBody"></div></dialog>`);
+  $('#openTransfer').onclick=()=>window.Transfer.start();
   $('#closeDialog').onclick=closeModal;$('#workspaceDialog').addEventListener('close',()=>{running=false;lastFocused?.isConnected&&lastFocused.focus()});
   $('#renamePlan').onclick=renameTab;$('#duplicatePlan').onclick=()=>addTab(true);$('#undoWorkspace').onclick=undoLast;
   $('#guardianChain').onclick=guardianDialog;$('#exportWorkspace').onclick=exportWorkspace;$('#importWorkspace').onclick=()=>$('#workspaceFile').click();$('#workspaceFile').onchange=e=>{const f=e.target.files[0];e.target.value='';importFile(f)};
@@ -327,5 +328,11 @@ window.installWorkspace = function(){
  copyBetweenSlots=(...args)=>{undo=null;edits.copyBetweenSlots(...args)};
  fillAllWithJunk=(...args)=>{undo=null;edits.fillAllWithJunk(...args)};
  clearAllJunk=(...args)=>{undo=null;const placeholders=SLOTS.filter(s=>state.slots[s].length&&state.slots[s].every(c=>ability(c)?.special==='junk')&&!state.equipment?.[s]?.innateFactors?.length);edits.clearAllJunk(...args);for(const s of placeholders)delete state.equipment[s];restoreBase();render()};
+ window.Transfer=window.installTransfer({T,ability,displayName,equipmentError,clone,openModal,inventory:()=>clone(ws.inventory),commit:p=>{
+  const targetIndex=ws.inventory.findIndex(x=>x.id===p.target.id),sourceIndex=ws.inventory.findIndex(x=>x.id===p.source.id);
+  if(targetIndex<0||sourceIndex<0||targetIndex===sourceIndex)throw Error(T('装备已改变，请重新选择','装備が変更されました。選択し直してください'));
+  if(JSON.stringify(ws.inventory[targetIndex])!==JSON.stringify(p.target)||JSON.stringify(ws.inventory[sourceIndex])!==JSON.stringify(p.source))throw Error(T('装备已改变，请重新选择','装備が変更されました。選択し直してください'));
+  recordUndo();ws.inventory[targetIndex]=clone(p.result);ws.inventory[sourceIndex]=clone(p.remainder);render();
+ }});
  window.Workspace={snapshot,parseWorkspace,equipmentAction,equipmentToInventory,inventoryToSlot,addTab,activate,closeTab,undoLast,checkRun,makeResult,startAffix,copyInventory,deleteInventory,showItem,guardianDialog,closeModal,importFile,showSaves,deleteSave,readArchive,editItemDialog,updateInventoryItem};
 };
