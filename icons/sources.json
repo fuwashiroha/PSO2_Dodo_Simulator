@@ -1,0 +1,125 @@
+{
+  "source": "https://pso2.swiki.jp/index.php?特殊能力追加",
+  "icons": [
+    {
+      "key": "ability",
+      "name": "特殊能力.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E7%89%B9%E6%AE%8A%E8%83%BD%E5%8A%9B.png",
+      "file": "icons/ability.png",
+      "bytes": 684,
+      "sha256": "069582950c0a53423e6200906aa0448050193be371393922a29bc0fd433969ac"
+    },
+    {
+      "key": "sop",
+      "name": "S級特殊能力.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=S%E7%B4%9A%E7%89%B9%E6%AE%8A%E8%83%BD%E5%8A%9B.png",
+      "file": "icons/sop.png",
+      "bytes": 357,
+      "sha256": "1973bbaa7483e4b19616d0d17f45e21520d5996617bb223953121247a07926c8"
+    },
+    {
+      "key": "factor",
+      "name": "特殊能力因子.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E7%89%B9%E6%AE%8A%E8%83%BD%E5%8A%9B%E5%9B%A0%E5%AD%90.png",
+      "file": "icons/factor.png",
+      "bytes": 484,
+      "sha256": "5f926188f2f0e3c0f0467e57cb78778be16f79ba8d1d9e2cf35c878fb954b0d7"
+    },
+    {
+      "key": "potential",
+      "name": "潜在能力.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E6%BD%9C%E5%9C%A8%E8%83%BD%E5%8A%9B.png",
+      "file": "icons/potential.png",
+      "bytes": 418,
+      "sha256": "4a14a3982d679ac7088c47179dc727557a0d8981e4b25f7e5aa32dcc9213eeeb"
+    },
+    {
+      "key": "support",
+      "name": "能力追加成功率+40%.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E8%83%BD%E5%8A%9B%E8%BF%BD%E5%8A%A0%E6%88%90%E5%8A%9F%E7%8E%87%2B40%25.png",
+      "file": "icons/support.png",
+      "bytes": 1169,
+      "sha256": "561b1774718a3f160fc7aa08f2e1edcf5a56170b4576472afaa766f4209bac8e"
+    },
+    {
+      "key": "protection",
+      "name": "特殊能力保護(4枠以下).png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E7%89%B9%E6%AE%8A%E8%83%BD%E5%8A%9B%E4%BF%9D%E8%AD%B7%284%E6%9E%A0%E4%BB%A5%E4%B8%8B%29.png",
+      "file": "icons/protection.png",
+      "bytes": 1732,
+      "sha256": "0a245848f17e86b3b17f404c5cd92c4ea025c85e27ff6fb285c8c9df14e51015"
+    },
+    {
+      "key": "capsule",
+      "name": "特殊能力追加(HP).png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%89%B9%E6%AE%8A%E8%83%BD%E5%8A%9B%E8%BF%BD%E5%8A%A0&src=%E7%89%B9%E6%AE%8A%E8%83%BD%E5%8A%9B%E8%BF%BD%E5%8A%A0%28HP%29.png",
+      "file": "icons/capsule.png",
+      "bytes": 902,
+      "sha256": "e504acab1a8c9773bf8852611cd89d699ef543aa2288f45c543203d69c3876fa"
+    },
+    {
+      "key": "workbench",
+      "name": "アイテム強化",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E3%82%B0%E3%83%A9%E3%82%A4%E3%83%B3%E3%83%80%E5%B0%8F.png",
+      "file": "icons/workbench.png",
+      "bytes": 647,
+      "sha256": "3dcd2e797456576a885d9a2248ba889f5734f7951a306dc95d5b05703462b371"
+    },
+    {
+      "key": "s",
+      "name": "打撃力.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E6%89%93%E6%92%83%E5%8A%9B.png",
+      "file": "icons/s.png",
+      "bytes": 734,
+      "sha256": "7da8a46b933000e4c1e582238e21c277e763183f0522b45855e62b62b62a92ba"
+    },
+    {
+      "key": "r",
+      "name": "射撃力.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E5%B0%84%E6%92%83%E5%8A%9B.png",
+      "file": "icons/r.png",
+      "bytes": 731,
+      "sha256": "572337c7ad131440ea09052ec7abd74b8067fa61299b55ab8408adf11f4ca2b3"
+    },
+    {
+      "key": "t",
+      "name": "法撃力.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E6%B3%95%E6%92%83%E5%8A%9B.png",
+      "file": "icons/t.png",
+      "bytes": 699,
+      "sha256": "ca685dcb57b2ec87477a092220ec004ce721ea2139045b6d2a8a1f5f5e1d1d25"
+    },
+    {
+      "key": "dex",
+      "name": "技量.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E6%8A%80%E9%87%8F.png",
+      "file": "icons/dex.png",
+      "bytes": 621,
+      "sha256": "5aced7a20ba3f271bb82396410b67f92cdda8bd43e91958da9412622a2674506"
+    },
+    {
+      "key": "sd",
+      "name": "打撃防御.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E6%89%93%E6%92%83%E9%98%B2%E5%BE%A1.png",
+      "file": "icons/sd.png",
+      "bytes": 752,
+      "sha256": "71938deb9fb599e857082c1e397a4ff5df07313e3c6731c5b5f58f72cbebd2be"
+    },
+    {
+      "key": "rd",
+      "name": "射撃防御.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E5%B0%84%E6%92%83%E9%98%B2%E5%BE%A1.png",
+      "file": "icons/rd.png",
+      "bytes": 729,
+      "sha256": "3832d06e1f4a056f4f5cb282361f20f6d8da19dc34c0bf22afb3e37ddd16da23"
+    },
+    {
+      "key": "td",
+      "name": "法撃防御.png",
+      "url": "https://pso2.swiki.jp/index.php?plugin=ref&host=pso2&page=%E7%94%BB%E5%83%8F%E7%BD%AE%E5%A0%B4&src=%E6%B3%95%E6%92%83%E9%98%B2%E5%BE%A1.png",
+      "file": "icons/td.png",
+      "bytes": 712,
+      "sha256": "ed182113712275ce244a82e8840227ea25edf0f5a23e66ece00c1820a5db2426"
+    }
+  ]
+}

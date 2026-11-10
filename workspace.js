@@ -315,7 +315,7 @@ window.installWorkspace = function(){
   document.addEventListener('dragend',cancelDrag);
   document.addEventListener('change',e=>{if(!e.target.closest('#workspaceDialog')&&e.target.id!=='workspaceFile'){undo=null;if($('#undoWorkspace'))$('#undoWorkspace').disabled=true}},true);
  }
- initApp=function(){addUI();original.initApp();ready=true;
+ initApp=function(){addUI();window.installCompactUI?.({T,ability,displayName});original.initApp();ready=true;
   $('#reset').onclick=()=>{if(confirm(T('清空当前方案？其他方案和背包会保留。','現在のプランをクリアしますか？他のプランとバッグは保持されます。')))resetAll()};
   $('#load').onclick=showSaves;$('#load').textContent=T('存档列表 / 读取','保存一覧 / 読込');
   $('#copy').onclick=async()=>{saveHash();try{if(!navigator.clipboard)throw Error();await navigator.clipboard.writeText(location.href);toast(T('已复制当前方案URL（不含其他标签页和背包）','現在のプランURLをコピーしました（他のプラン・バッグは含みません）'))}catch{openModal(T('当前方案URL','現在のプランURL'),`<p>${T('请复制下方网址。换电脑建议使用导出文件。','下のURLをコピーしてください。別のPCではファイルのエクスポートを推奨します。')}</p><textarea readonly class="urlText">${esc(location.href)}</textarea>`);$('#workspaceDialog textarea').select()}};

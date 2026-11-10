@@ -1,0 +1,7 @@
+*.bak
+*.log
+_备份/
+归档/
+node_modules/
+.DS_Store
+Thumbs.db
