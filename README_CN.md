@@ -4,7 +4,8 @@
 
 面向 PSO2 旧国的离线特殊能力追加模拟器。
 
-![模拟器界面](screenshots/zh-CN.png)
+<img width="1908" height="1176" alt="image" src="https://github.com/user-attachments/assets/6e192c12-39c0-46f0-a4be-d20175a4e3bc" />
+
 
 ## 主要功能
 
