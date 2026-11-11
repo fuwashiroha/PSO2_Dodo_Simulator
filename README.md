@@ -4,7 +4,8 @@
 
 旧PSO2向けの、オフラインで使える特殊能力追加シミュレーターです。
 
-![シミュレーター画面](screenshots/ja.png)
+<img width="1910" height="1206" alt="image" src="https://github.com/user-attachments/assets/accd7ba7-fa43-41fa-bed6-7a87a978e212" />
+
 
 ## 主な機能
 
