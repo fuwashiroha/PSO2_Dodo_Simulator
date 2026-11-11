@@ -41,7 +41,7 @@ window.installCompactUI=function({T,ability,displayName,planName}){
   for(const [index,card] of all('.mat').entries()){
    const name=card.querySelector('.matHead>span');name.innerHTML=icon('ability')+(index===0?`<b class="baseBadge">${T('本体','本体')}</b>`:T('素材','素材')+index);
    const body=card.querySelector('.matBody');body.querySelector('.empty')?.remove();const usedSlots=body.querySelectorAll('.chip').length;for(let slot=usedSlots;slot<8;slot++)body.insertAdjacentHTML('beforeend',`<div class="slot-placeholder" aria-disabled="true"><span class="slot-ability">${T('未启用','未使用')}</span></div>`);
-   const caption=card.querySelector('.equipmentCaption');if(caption&&[T('空位置','空き位置'),T('未命名装备','名前なし')].includes(caption.textContent))caption.hidden=true;
+   const caption=card.querySelector('.equipmentCaption');if(caption)caption.title=caption.textContent;
    for(const chip of card.querySelectorAll('.chip')){const a=ability(chip.dataset.code);chip.querySelector(':scope>span').classList.add('slot-ability');chip.insertAdjacentHTML('afterbegin',icon(chip.classList.contains('factor')?'factor':abilityIcon(a)));chip.title=[displayName(a),T(a?.effectZh||a?.effect,a?.effect)].filter(Boolean).join('\n');}
   }
  }
