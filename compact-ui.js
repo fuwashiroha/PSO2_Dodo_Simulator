@@ -16,7 +16,7 @@ window.installCompactUI=function({T,ability,displayName,planName}){
  const candidatesPanel=document.createElement('section');candidatesPanel.className='compact-side-panel candidates-panel';const candidateColumns=document.createElement('div');candidateColumns.className='candidate-columns';candidateColumns.setAttribute('aria-hidden','true');candidateColumns.innerHTML=`<span></span><span>${T('能力','能力')}</span><span>${T('基础','基本')}</span><span>${T('最终','最終')}</span>`;candidatesPanel.append($('#candidateTitle'),candidateColumns,$('#candidateBody'),$('#summary'),$('#affixActions'));
  const controls=$('.controls'),tools=$('.planTools'),junkTools=$('.junkTools'),lowRarity=$('#lowRarityWeapon').closest('label');
  lowRarity.removeAttribute('style');$('#addItemLabel').classList.remove('sameNameControl');
- controls.replaceChildren($('#support').closest('label'),$('#campaign').closest('label'),$('#addItemLabel'),$('#abilityProtectionLabel'),$('#lifeGuidance').closest('label'),$('#sameNameLabel'),lowRarity);tools.append(junkTools,$('#reset'));const footer=document.createElement('div');footer.className='workspace-footer';footer.append(tools,controls);center.append(footer);
+ controls.replaceChildren($('#support').closest('label'),$('#campaign').closest('label'),$('#addItemLabel'),$('#abilityProtectionLabel'),$('#lifeGuidance').closest('label'),$('#sameNameLabel'),lowRarity);tools.append(junkTools);const footer=document.createElement('div');footer.className='workspace-footer';footer.append(tools,controls);center.append(footer);
  right.replaceChildren(bagPanel,candidatesPanel,statsPanel);
  $('.dragInstructions')?.remove();
  const labels={load:T('我的方案','保存プラン'),guardianChain:T('合成配方','合成レシピ'),save:T('保存','保存'),exportWorkspace:T('导出','書出'),importWorkspace:T('导入','読込'),copy:T('分享方案','プラン共有'),reset:T('清空','クリア'),renamePlan:T('改名','名前変更'),duplicatePlan:T('复制','複製'),undoWorkspace:T('撤销','元に戻す'),junkFillBtn:T('填充','埋める'),junkClearBtn:T('清除占位','ゴミ除去')};
@@ -25,7 +25,7 @@ window.installCompactUI=function({T,ability,displayName,planName}){
  $('#lowRarityWeapon').closest('label').title=T('究极克星的继承条件：本体为★12以下武器','アルティメットバスターの継承条件：本体が★12以下の武器');
  $('#search').placeholder=T('搜索名称或效果','名前・効果を検索');$('#search').setAttribute('aria-label',T('搜索特殊能力','特殊能力を検索'));$('#group').setAttribute('aria-label',T('能力分类','能力分類'));
  heading($('#listTitle'),'ability',T('特殊能力','特殊能力'));heading($('#candidateTitle'),'ability',T('追加候选','追加候補'));
- const materialLabel=document.createElement('span');materialLabel.className='workspace-name';const titleActions=document.createElement('div');titleActions.className='workspace-title-actions';titleActions.append($('#renamePlan'),$('#duplicatePlan'),$('#undoWorkspace'));$('#materialTitle').prepend(materialLabel);$('#materialTitle').append(titleActions);
+ const materialLabel=document.createElement('span');materialLabel.className='workspace-name';const titleActions=document.createElement('div');titleActions.className='workspace-title-actions';titleActions.append($('#renamePlan'),$('#duplicatePlan'),$('#undoWorkspace'),$('#reset'));$('#materialTitle').prepend(materialLabel);$('#materialTitle').append(titleActions);
  for(const node of [...$('#materialTitle').childNodes])if(node.nodeType===Node.TEXT_NODE)node.remove();
  for(const [id,key] of [['supportText','support'],['addItemText','capsule'],['abilityProtectionText','protection']])$('#'+id).insertAdjacentHTML('afterbegin',icon(key));
  const bagLabel=[...bagTitle.childNodes].find(node=>node.nodeType===Node.TEXT_NODE);if(bagLabel)bagLabel.textContent=T('道具背包','アイテムバッグ');
