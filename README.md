@@ -4,9 +4,6 @@
 
 旧PSO2向けの、オフラインで使える特殊能力追加シミュレーターです。
 
-<img width="1910" height="1206" alt="image" src="https://github.com/user-attachments/assets/accd7ba7-fa43-41fa-bed6-7a87a978e212" />
-
-
 ## 主な機能
 
 - 本体と素材5個の能力を編集。継承・合成・拡張・因子・追加アイテムに対応。
