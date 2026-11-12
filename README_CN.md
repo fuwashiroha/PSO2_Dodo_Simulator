@@ -4,9 +4,6 @@
 
 面向 PSO2 旧国的离线特殊能力追加模拟器。
 
-<img width="1908" height="1176" alt="image" src="https://github.com/user-attachments/assets/6e192c12-39c0-46f0-a4be-d20175a4e3bc" />
-
-
 ## 主要功能
 
 - 编辑本体与五件素材，支持继承、合成、扩孔、因子和追加胶囊。
