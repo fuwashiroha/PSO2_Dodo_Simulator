@@ -62,8 +62,8 @@ window.installCompactUI=function({T,ability,displayName,planName}){
  const oldSlots=renderSlots;renderSlots=function(){oldSlots();paintSlots();};
  const oldSummary=renderSummary;renderSummary=function(){oldSummary();paintSummary();};
  const oldRender=render;render=function(){oldRender();refreshLabels();paintInventory();};
- function resize(){const height=$('header').getBoundingClientRect().height+nav.getBoundingClientRect().height;document.documentElement.style.setProperty('--chrome-height',(height||76)+'px');}
- if(typeof ResizeObserver==='function'){const observer=new ResizeObserver(resize);observer.observe($('header'));observer.observe(nav);}window.addEventListener('resize',resize);
+ function resize(){const height=$('header').getBoundingClientRect().height+nav.getBoundingClientRect().height;document.documentElement.style.setProperty('--chrome-height',(height||76)+'px');layout.style.setProperty('--workspace-height',center.getBoundingClientRect().height+'px');}
+ if(typeof ResizeObserver==='function'){const observer=new ResizeObserver(resize);observer.observe($('header'));observer.observe(nav);observer.observe(center);}window.addEventListener('resize',resize);
  refreshLabels();resize();
 };
 })();

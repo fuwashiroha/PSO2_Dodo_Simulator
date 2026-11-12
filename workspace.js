@@ -279,7 +279,7 @@ window.installWorkspace = function(){
   original.renderSlots();
   $$('.mat').forEach((m,index)=>{
    const s=SLOTS[index],item=itemAt(index),h=m.querySelector('.matHead');
-   h.innerHTML=`<span>${T('素材','素材')} <small>${index+1}</small> ${index===0?`<b class="baseBadge">${T('本体','本体')}</b>`:''}</span><span>${item?state.slots[s].length+'S':T('空','空')} <button class="equipmentMenu" title="${T('装备操作','装備操作')}" aria-label="${T('装备操作','装備操作')}">⋯</button></span>`;
+   h.innerHTML=`<span>${T('素材','素材')} <small>${index+1}</small> ${index===0?`<b class="baseBadge">${T('本体','本体')}</b>`:''}</span><span class="equipment-actions"><span>${item?state.slots[s].length+'S':T('空','空')}</span>${item?`<button type="button" data-equipment-action="rename">${T('重命名','名前変更')}</button><button type="button" data-equipment-action="remove">${T('移除','外す')}</button>`:`<button type="button" data-equipment-action="create">${T('添加','追加')}</button>`}</span>`;
    h.title=T('按住标题直接拖动；Ctrl复制；间隙插入排序','タイトルを押してドラッグ。Ctrlでコピー、隙間へ挿入');
    m.classList.toggle('baseMaterial',index===0);
    const caption=document.createElement('div');caption.className='equipmentCaption';caption.textContent=item?(item.name||T('未命名装备','名前なし')):T('空位置','空き位置');
@@ -292,11 +292,10 @@ window.installWorkspace = function(){
    const gap=(pos,cls)=>{const g=document.createElement('div');g.className='insertTarget '+cls;g.dataset.insert=pos;g.dataset.label=T(`插入到位置${pos+1}${pos===0?' · 新本体':''}`,`位置${pos+1}へ挿入${pos===0?' · 新本体':''}`);wrap.appendChild(g)};
    gap(index,'before');gap(index,'above');if(index===5)gap(6,'after');
    setupHeaderDrag(h,index);
-   h.querySelector('button').onclick=()=>{
-    openModal(T(`位置${index+1} · 装备操作`,`位置${index+1} · 装備操作`),`<p>${item?esc(describeItem(item)).replace(/\n/g,'<br>'):T('此位置为空','この位置は空です')}</p><div class="modalActions">${item?`<button id="renameEquipment">${T('重命名','名前変更')}</button><button id="removeEquipment">${T('移除整件装备','装備を外す')}</button>`:`<button id="createEquipment">${T('放入零孔装备','0枠装備を置く')}</button>`}</div>`);
-    if(item){$('#renameEquipment').onclick=()=>{const n=prompt(T('装备名称','装備名'),item.name);if(n?.trim()){state.equipment[s].name=n.trim().slice(0,80);closeModal();render()}};$('#removeEquipment').onclick=()=>{recordUndo();putAt(index,null);closeModal();changedEquipment()}}
-    else $('#createEquipment').onclick=()=>{recordUndo();putAt(index,{...meta(),abilities:[],factors:[]});closeModal();changedEquipment()};
-   };
+   const renameButton=h.querySelector('[data-equipment-action="rename"]'),removeButton=h.querySelector('[data-equipment-action="remove"]'),createButton=h.querySelector('[data-equipment-action="create"]');
+   if(renameButton)renameButton.onclick=()=>{const n=prompt(T('装备名称','装備名'),item.name);if(n?.trim()){state.equipment[s].name=n.trim().slice(0,80);render()}};
+   if(removeButton)removeButton.onclick=()=>{recordUndo();putAt(index,null);changedEquipment()};
+   if(createButton)createButton.onclick=()=>{recordUndo();putAt(index,{...meta(),abilities:[],factors:[]});changedEquipment()};
    m.addEventListener('dragover',e=>{if(drag?.type!=='inventory')return;e.preventDefault();e.stopImmediatePropagation();highlight({mode:'copy',el:m});e.dataTransfer.dropEffect='copy'},true);
    m.addEventListener('drop',e=>{let p;try{p=JSON.parse(e.dataTransfer.getData('text/plain'))}catch{return}if(p.type!=='inventory'&&p.type!=='equipment')return;e.preventDefault();e.stopImmediatePropagation();cancelDrag();if(p.type==='inventory')inventoryToSlot(p.id,index)},true);
   });
