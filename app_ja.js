@@ -241,6 +241,6 @@ const addSel=$("#addItemSelect");addSel.options[0].textContent='使用しない'
   state.addItemCode=e.target.value||'';
   if(old&&old!==state.addItemCode)state.selected=state.selected.filter(c=>c!==old);
   render()
-};$("#junkFillBtn").onclick=()=>fillAllWithJunk($("#junkFillSlots").value);$("#junkClearBtn").onclick=clearAllJunk;$("#save").onclick=saveLocal;$("#load").onclick=loadLocal;$("#reset").onclick=()=>{if(confirm('全てクリアしますか？'))resetAll()};$("#copy").onclick=()=>navigator.clipboard?.writeText(location.href).then(()=>toast('URLをコピーしました')).catch(()=>toast('ブラウザ制限によりコピー不可'));render()}
+};$("#junkFillBtn").onclick=()=>fillAllWithJunk($("#junkFillSlots").value);$("#junkClearBtn").onclick=clearAllJunk;$("#save").onclick=saveLocal;$("#load").onclick=loadLocal;$("#reset").onclick=()=>{if(confirm('全てクリアしますか？'))resetAll()};render()}
 window.installWorkspace();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initApp);else initApp();

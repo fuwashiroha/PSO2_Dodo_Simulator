@@ -275,6 +275,6 @@ const addSel=$("#addItemSelect");addSel.options[0].textContent='不使用';DATA.
   state.addItemCode=e.target.value||'';
   if(old&&old!==state.addItemCode)state.selected=state.selected.filter(c=>c!==old);
   render()
-};$("#junkFillBtn").onclick=()=>fillAllWithJunk($("#junkFillSlots").value);$("#junkClearBtn").onclick=clearAllJunk;$("#save").onclick=saveLocal;$("#load").onclick=loadLocal;$("#reset").onclick=()=>{if(confirm('确定要全部清空吗？'))resetAll()};$("#copy").onclick=()=>navigator.clipboard?.writeText(location.href).then(()=>toast('URL已复制')).catch(()=>toast('受浏览器限制，无法复制'));render()}
+};$("#junkFillBtn").onclick=()=>fillAllWithJunk($("#junkFillSlots").value);$("#junkClearBtn").onclick=clearAllJunk;$("#save").onclick=saveLocal;$("#load").onclick=loadLocal;$("#reset").onclick=()=>{if(confirm('确定要全部清空吗？'))resetAll()};render()}
 window.installWorkspace();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initApp);else initApp();
