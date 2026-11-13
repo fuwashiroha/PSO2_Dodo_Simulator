@@ -1,16 +1,17 @@
 // Search only: keep stored ability names and codes unchanged.
 window.normalizeAbilitySearch=value=>String(value??'').normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
-window.abilitySearchText=(a,...extra)=>[a.name,a.nameZh||'',...(Array.isArray(a.searchAliases)?a.searchAliases:[]),...extra].join(' ');
+window.abilitySearchText=(a,...extra)=>[a.name,a.nameZh||'',window.AFFIX_EN?.translate(a.name)||'',window.AFFIX_EN?.translate(a.effect)||'',...(Array.isArray(a.searchAliases)?a.searchAliases:[]),...extra].join(' ');
 /* V27 workspace. Calculation stays in rules.js; this module owns plans/items/results. */
 window.safeStorageGet = key => {try{return localStorage.getItem(key)}catch{return null}};
 window.installWorkspace = function(){
- const zh=document.documentElement.lang==='zh-CN';
- const T=(cn,ja)=>zh?cn:ja;
- const displayName=a=>zh?(a?.nameZh||a?.name||''):(a?.name||'');
+ const zh=document.documentElement.lang==='zh-CN',en=document.documentElement.lang==='en';
+ const T=(cn,ja)=>en?window.AFFIX_EN.translate(cn):zh?cn:ja;
+ const displayName=a=>en?window.AFFIX_EN.translate(a?.name||''):zh?(a?.nameZh||a?.name||''):(a?.name||'');
  const clone=o=>JSON.parse(JSON.stringify(o));
  const uid=()=>globalThis.crypto?.randomUUID?.()||'item-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
  const KEY='pso2-dodo-workspace-v27', DRAFT=KEY+'-draft', SAVES='pso2-dodo-save-list';
  const original={render,renderSlots,renderSummary,initApp,toggleFactor};
+ window.affixProtectedText=()=>new Set([...(ws?.tabs||[]).map(tab=>tab.name),...(ws?.inventory||[]).map(item=>item.name),...Object.values(state.equipment||{}).map(item=>item?.name)].filter(Boolean));
  let ws,ready=false,rendering=false,undo=null,drag=null,press=null,lastFocused=null,storageWarned=false;
  const blank=()=>({slots:Object.fromEntries(SLOTS.map(s=>[s,[]])),factor:Object.fromEntries(SLOTS.map(s=>[s,[]])),equipment:{},support:0,campaign:15,sameName:false,lifeGuidance:false,lowRarityWeapon:false,abilityProtection:'',addItemCode:'',selected:[]});
  const active=()=>ws.tabs.find(t=>t.id===ws.activeId);
@@ -107,7 +108,7 @@ window.installWorkspace = function(){
  function showSaves(){try{const archive=readArchive();openModal(T('存档列表','保存データ一覧'),`<p>${T('每次保存新增一个以本地时间命名的完整存档，包含全部方案和背包。读取会替换当前工作区；删除存档不影响当前内容。','保存ごとにローカル時刻を名前にした全プラン・バッグのスナップショットを追加します。読込は現在の内容を置き換えます。削除は現在の内容に影響しません。')}</p><div class="saveList">${[...archive.entries].reverse().map(e=>`<div class="saveEntry"><div><b>${esc(e.name)}</b><small>${e.workspace.tabs?.length||1} ${T('个方案','プラン')} · ${e.workspace.inventory?.length||0} ${T('件装备','装備')}</small></div><div><button data-load-save="${esc(e.id)}">${T('读取','読込')}</button><button data-delete-save="${esc(e.id)}">${T('删除','削除')}</button></div></div>`).join('')||`<p class="muted">${T('暂无存档，请点击顶部“保存”。','保存データがありません。上部の「保存」を押してください。')}</p>`}</div>`);$$('[data-load-save]').forEach(b=>b.onclick=()=>{if(confirm(T('读取此存档并替换当前全部方案和背包？','この保存データで全プランとバッグを置き換えますか？')))loadLocal(b.dataset.loadSave)});$$('[data-delete-save]').forEach(b=>b.onclick=()=>{if(confirm(T('删除这个存档？当前方案和背包不会改变。','この保存データを削除しますか？現在のプランとバッグは変更しません。'))&&deleteSave(b.dataset.deleteSave))showSaves()})}catch(e){toast(T('无法打开存档列表：','保存リストを開けません：')+e.message)}}
  resetAll=function(){cancelDrag();state=blank();active().state=state;active().lastResult=null;undo=null;render()};
  normalizeState=function(){state=cleanState(state);if(ws)active().state=state};
- window.prepareLanguageChange=function(lang){if(!store(DRAFT,{...snapshot(),shareHash:location.hash})){ $('#language').value=zh?'zh-CN':'ja';return false}try{localStorage.setItem('pso2-dodo-language',lang);return true}catch{toast(T('无法保存语言设置','言語設定を保存できません'));return false}};
+ window.prepareLanguageChange=function(lang){if(!store(DRAFT,{...snapshot(),shareHash:location.hash})){ $('#language').value=en?'en':zh?'zh-CN':'ja';return false}try{localStorage.setItem('pso2-dodo-language',lang);return true}catch{toast(T('无法保存语言设置','言語設定を保存できません'));return false}};
  function recordUndo(){sync();undo={tab:ws.activeId,state:clone(state),inventory:clone(ws.inventory)}}
  function undoLast(){if(!undo||undo.tab!==ws.activeId)return;state=undo.state;active().state=state;ws.inventory=undo.inventory;undo=null;render();toast(T('已撤销上一步','元に戻しました'))}
  function changedEquipment(){state.sameName=false;restoreBase();render();toast(T('装备已更新；同名加成已取消，请按需要重新勾选','装備を更新。同名補正を解除しました。必要に応じて再設定してください'))}

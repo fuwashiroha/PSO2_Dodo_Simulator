@@ -1,5 +1,5 @@
 (function(){
-  const texts={
+  const texts={en:{"title": "PSO2 Augmentation Simulator", "lang": "Language", "save": "Save", "load": "Load", "reset": "Clear", "list": "Augments", "search": "Search Augments", "all": "All Categories", "material": "Base / Materials", "support": "Augmentation Aid", "none": "None", "campaign": "Boost Event", "same": "All Equipment Has the Same Name", "tip": "Applies only when the base item and all used materials have exactly the same equipment name.", "addItem": "Augment Capsule", "addItemTip": "Select one capsule to add its augment to the candidates.", "junkFill": "Fill All Items With Filler Augments Up To", "junkFillSuffix": "Slots", "junkFillBtn": "Fill", "junkClear": "Clear Fillers", "candidate": "Augmentation Candidates"},
     ja:{title:"PSO2特殊能力追加シミュレーター",lang:"言語",save:"保存",load:"読込",reset:"クリア",
         list:"特殊能力一覧",search:"能力名を検索（ひらがな可）",all:"全分類",material:"本体 / 素材",support:"能力追加成功率",none:"無し",
         campaign:"報酬期間",same:"本体・使用素材はすべて同名",tip:"本体と、現在使用している全素材が完全に同じ装備名の場合のみ有効",addItem:"追加アイテム",addItemTip:"使用する特殊能力追加アイテムを1つ選択します",junkFill:"全本体・素材をゴミで",junkFillSuffix:"まで埋める",junkFillBtn:"実行",junkClear:"全ゴミ削除",candidate:"追加候補 / 成功率"},
@@ -24,5 +24,6 @@
   $("#abilityProtectionText").textContent=lang==="zh-CN"?"是否使用特殊能力保护":"特殊能力保護の使用";
   $("#abilityProtectionLabel").title=lang==="zh-CN"?"不影响成功率；使用保护时，只要有能力失败，本次结果就不存入背包。":"成功率は変わりません。保護使用時に1つでも失敗すると結果をバッグに保存しません。";
   [...$("#abilityProtection").options].forEach(o=>{o.textContent=o.value?(lang==="zh-CN"?`特殊能力保护(${o.value}孔以下)`:`特殊能力保護(${o.value}枠以下)`):(lang==="zh-CN"?"不使用":"使用しない");});
+  if(lang==="en")window.AFFIX_EN.install();
   const s=document.createElement("script"); s.src=lang==="zh-CN"?"app_zh.js?v=3a5db29bb4":"app_ja.js?v=5b98762060"; document.body.appendChild(s);
 })();
